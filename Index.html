@@ -1,0 +1,1600 @@
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { 
+  Search, Plus, TrendingUp, TrendingDown, RefreshCw, 
+  Trash2, X, Download, Upload, Star, Clock, 
+  Settings as SettingsIcon, LayoutDashboard, Wallet,
+  ChevronRight, Activity, AlertCircle, CheckCircle2,
+  User, Image as ImageIcon, Box, Heart, Bell, Check, Edit3, ExternalLink
+} from 'lucide-react';
+
+// ==========================================
+// CACHE & STORAGE (Camada de Armazenamento Robusta)
+// ==========================================
+
+const apiCache = {
+  store: new Map(),
+  set(key, data, ttlSeconds = 60) {
+    this.store.set(key, { data, expiry: Date.now() + ttlSeconds * 1000 });
+  },
+  get(key) {
+    const item = this.store.get(key);
+    if (!item) return null;
+    if (Date.now() > item.expiry) {
+      this.store.delete(key);
+      return null;
+    }
+    return item.data;
+  }
+};
+
+const formatRobux = (value, format = 'suffix') => {
+  const num = Math.round(Number(value) || 0);
+  const formatted = new Intl.NumberFormat('en-US').format(num);
+  return format === 'suffix' ? `${formatted} R$` : `R$ ${formatted}`;
+};
+
+const normalizeItem = (item) => ({
+  id: String(item.id || Date.now()),
+  assetId: String(item.assetId || ''),
+  name: String(item.name || 'Unknown Item'),
+  imageUrl: String(item.imageUrl || ''),
+  assetType: String(item.assetType || 'Asset'),
+  isLimited: Boolean(item.isLimited),
+  isLimitedUnique: Boolean(item.isLimitedUnique),
+  saleStatus: String(item.saleStatus || 'Available'),
+  rap: Math.max(0, Number(item.rap) || 0),
+  currentPrice: Math.max(0, Number(item.currentPrice) || 0),
+  lowestResellerPrice: Math.max(0, Number(item.lowestResellerPrice) || 0),
+  boughtPrice: Math.max(0, Number(item.boughtPrice) || 0),
+  quantity: Math.max(1, Number(item.quantity) || 1),
+  isFavorite: Boolean(item.isFavorite),
+  history: Array.isArray(item.history) ? item.history : [],
+  resellers: Array.isArray(item.resellers) ? item.resellers : [],
+  dateBought: item.dateBought || new Date().toISOString(),
+  lastUpdated: item.lastUpdated || new Date().toISOString()
+});
+
+const normalizeWishlistItem = (item) => ({
+  id: String(item.id || Date.now()),
+  assetId: String(item.assetId || ''),
+  name: String(item.name || 'Unknown Item'),
+  imageUrl: String(item.imageUrl || ''),
+  currentPrice: Math.max(0, Number(item.currentPrice) || 0),
+  targetPrice: Math.max(0, Number(item.targetPrice) || 0),
+  availableRobux: Math.max(0, Number(item.availableRobux) || 0),
+  isAffordable: Boolean(item.isAffordable),
+  viewed: Boolean(item.viewed),
+  createdAt: item.createdAt || new Date().toISOString()
+});
+
+const normalizeSettings = (settings) => ({
+  autoRefresh: settings?.autoRefresh !== undefined ? Boolean(settings.autoRefresh) : true,
+  refreshInterval: Number(settings?.refreshInterval) || 60,
+  currencyFormat: settings?.currencyFormat === 'prefix' ? 'prefix' : 'suffix',
+  theme: 'dark',
+  profile: {
+    username: String(settings?.profile?.username || ''),
+    userId: String(settings?.profile?.userId || ''),
+    displayName: String(settings?.profile?.displayName || ''),
+    avatarUrl: String(settings?.profile?.avatarUrl || ''),
+    customImage: String(settings?.profile?.customImage || ''),
+    customAssetId: String(settings?.profile?.customAssetId || '')
+  }
+});
+
+const storage = {
+  getItems: () => {
+    try {
+      const data = localStorage.getItem('raply_items');
+      return data ? JSON.parse(data).map(normalizeItem) : [];
+    } catch (e) { return []; }
+  },
+  saveItems: (items) => {
+    try { localStorage.setItem('raply_items', JSON.stringify(items)); } catch (e) {}
+  },
+  getWishlist: () => {
+    try {
+      const data = localStorage.getItem('raply_wishlist');
+      return data ? JSON.parse(data).map(normalizeWishlistItem) : [];
+    } catch (e) { return []; }
+  },
+  saveWishlist: (wishlist) => {
+    try { localStorage.setItem('raply_wishlist', JSON.stringify(wishlist)); } catch (e) {}
+  },
+  getNotifications: () => {
+    try {
+      const data = localStorage.getItem('raply_notifications');
+      return data ? JSON.parse(data) : [];
+    } catch (e) { return []; }
+  },
+  saveNotifications: (notes) => {
+    try { localStorage.setItem('raply_notifications', JSON.stringify(notes)); } catch (e) {}
+  },
+  getSettings: () => {
+    try {
+      const data = localStorage.getItem('raply_settings');
+      return normalizeSettings(data ? JSON.parse(data) : {});
+    } catch (e) { return normalizeSettings({}); }
+  },
+  saveSettings: (settings) => {
+    try { localStorage.setItem('raply_settings', JSON.stringify(normalizeSettings(settings))); } catch (e) {}
+  }
+};
+
+// ==========================================
+// ROBLOX API LAYER (Resiliente, com Fallbacks)
+// ==========================================
+
+const RobloxAPI = {
+  endpoints: {
+    info: (id) => `https://api.roproxy.com/marketplace/productinfo?assetId=${id}`,
+    resale: (id) => `https://economy.roproxy.com/v1/assets/${id}/resale-data`,
+    resellers: (id) => `https://economy.roproxy.com/v1/assets/${id}/resellers?limit=10`,
+    thumbnail: (id) => `https://thumbnails.roproxy.com/v1/assets?assetIds=${id}&returnPolicy=PlaceHolder&size=150x150&format=Png&isCircular=false`,
+    userSearch: (username) => `https://users.roproxy.com/v1/users/search?keyword=${encodeURIComponent(username)}&limit=10`,
+    userInfo: (userId) => `https://users.roproxy.com/v1/users/${userId}`,
+    userAvatar: (userId) => `https://thumbnails.roproxy.com/v1/users/avatar-headshot?userIds=${userId}&size=150x150&format=Png&isCircular=true`
+  },
+
+  async getAssetThumbnail(assetId) {
+    const cacheKey = `thumb_${assetId}`;
+    const cached = apiCache.get(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const res = await fetch(this.endpoints.thumbnail(assetId));
+      if (!res.ok) return '';
+      const data = await res.json();
+      const url = data.data?.[0]?.imageUrl || '';
+      if (url) apiCache.set(cacheKey, url, 300);
+      return url;
+    } catch (e) {
+      return '';
+    }
+  },
+
+  async getAsset(assetId) {
+    const cacheKey = `asset_${assetId}`;
+    const cached = apiCache.get(cacheKey);
+    if (cached) return cached;
+
+    const res = await fetch(this.endpoints.info(assetId));
+    if (!res.ok) throw new Error('Asset not found');
+    const info = await res.json();
+    
+    const isLimited = Boolean(info.IsLimited || info.IsLimitedUnique);
+    const assetType = info.AssetTypeName || info.Type || 'Asset';
+    const saleStatus = info.IsForSale ? 'For Sale' : 'Off Sale';
+
+    let rap = 0;
+    let currentPrice = Number(info.PriceInRobux) || 0;
+    let lowestResellerPrice = 0;
+    let resellers = [];
+
+    if (isLimited) {
+      try {
+        const resaleRes = await fetch(this.endpoints.resale(assetId));
+        if (resaleRes.ok) {
+          const resaleData = await resaleRes.json();
+          rap = Number(resaleData.recentAveragePrice) || 0;
+          currentPrice = rap;
+        }
+      } catch (e) {}
+
+      try {
+        const resellersRes = await fetch(this.endpoints.resellers(assetId));
+        if (resellersRes.ok) {
+          const resellersData = await resellersRes.json();
+          if (resellersData.data) {
+            resellers = resellersData.data.map(r => ({
+              price: Number(r.price) || 0,
+              sellerName: r.seller?.name || r.sellerName || 'Roblox User',
+              sellerId: r.seller?.id || r.sellerId || 0,
+              quantity: Number(r.assetStock) || 1
+            }));
+            if (resellers.length > 0) {
+              lowestResellerPrice = Math.min(...resellers.map(r => r.price));
+              currentPrice = lowestResellerPrice;
+            }
+          }
+        }
+      } catch (e) {}
+    }
+
+    const imageUrl = await this.getAssetThumbnail(assetId);
+
+    const result = {
+      assetId: String(assetId),
+      name: info.Name || `Asset #${assetId}`,
+      imageUrl,
+      assetType,
+      isLimited,
+      isLimitedUnique: Boolean(info.IsLimitedUnique),
+      saleStatus,
+      rap,
+      currentPrice: currentPrice || rap || Number(info.PriceInRobux) || 0,
+      lowestResellerPrice,
+      resellers
+    };
+
+    apiCache.set(cacheKey, result, 60);
+    return result;
+  },
+
+  async getUser(usernameOrId) {
+    const queryStr = String(usernameOrId).trim();
+    let userId = '';
+    let username = '';
+    let displayName = '';
+
+    if (/^\d+$/.test(queryStr)) {
+      userId = queryStr;
+      const infoRes = await fetch(this.endpoints.userInfo(userId));
+      if (!infoRes.ok) throw new Error('User not found');
+      const info = await infoRes.json();
+      username = info.name;
+      displayName = info.displayName || info.name;
+    } else {
+      const cleanName = queryStr.startsWith('@') ? queryStr.substring(1) : queryStr;
+      const searchRes = await fetch(this.endpoints.userSearch(cleanName));
+      if (!searchRes.ok) throw new Error('Failed to search user');
+      const searchData = await searchRes.json();
+      const match = searchData.data?.find(u => u.name.toLowerCase() === cleanName.toLowerCase());
+      if (!match) throw new Error('User not found');
+      userId = String(match.id);
+      username = match.name;
+      displayName = match.displayName || match.name;
+    }
+
+    let avatarUrl = '';
+    try {
+      const avatarRes = await fetch(this.endpoints.userAvatar(userId));
+      if (avatarRes.ok) {
+        const avatarData = await avatarRes.json();
+        avatarUrl = avatarData.data?.[0]?.imageUrl || '';
+      }
+    } catch (e) {}
+
+    return { userId, username, displayName, avatarUrl };
+  }
+};
+
+
+// ==========================================
+// UI COMPONENTS
+// ==========================================
+
+const AnimatedNumber = ({ value, formatFn, className }) => {
+  const [displayValue, setDisplayValue] = useState(value);
+  
+  useEffect(() => {
+    if (displayValue === value) return;
+    const duration = 500;
+    const start = displayValue;
+    const end = value;
+    const startTime = performance.now();
+    
+    let animationFrame;
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+      setDisplayValue(start + (end - start) * ease);
+      if (progress < 1) animationFrame = requestAnimationFrame(animate);
+      else setDisplayValue(end);
+    };
+    animationFrame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationFrame);
+  }, [value]);
+
+  return <span className={className}>{formatFn(displayValue)}</span>;
+};
+
+const RobloxImage = ({ src, alt, className, type = 'asset' }) => {
+  const [hasError, setHasError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => { setHasError(false); setIsLoaded(false); }, [src]);
+
+  return (
+    <div className={`relative overflow-hidden flex items-center justify-center bg-[#050505] ${className}`}>
+      {(!isLoaded && !hasError) && <div className="absolute inset-0 bg-[#111111] animate-pulse" />}
+      {hasError || !src ? (
+        type === 'user' ? <User className="w-1/2 h-1/2 text-[#2A2A2A]" /> : <Box className="w-1/2 h-1/2 text-[#2A2A2A]" />
+      ) : (
+        <img 
+          src={src} alt={alt || ''}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setHasError(true)}
+          className={`w-full h-full object-contain transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
+          loading="lazy"
+        />
+      )}
+    </div>
+  );
+};
+
+const SmoothSparkline = ({ data, isPositive }) => {
+  if (!data || data.length < 2) return <div className="h-full w-full flex items-center justify-center text-[#8A8A8A] text-xs">Price history unavailable</div>;
+  
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const padding = 10;
+  
+  const points = data.map((val, i) => {
+    const x = (i / (data.length - 1)) * 100;
+    const y = 100 - padding - ((val - min) / range) * (100 - padding * 2);
+    return { x, y };
+  });
+
+  const pathD = points.reduce((acc, point, i, a) => {
+    if (i === 0) return `M ${point.x},${point.y}`;
+    const prev = a[i - 1];
+    const cp1x = prev.x + (point.x - prev.x) / 2;
+    const cp2x = prev.x + (point.x - prev.x) / 2;
+    return `${acc} C ${cp1x},${prev.y} ${cp2x},${point.y} ${point.x},${point.y}`;
+  }, '');
+
+  const color = isPositive ? '#30D158' : '#FF453A';
+
+  return (
+    <svg className="w-full h-full overflow-visible animate-in fade-in duration-700" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id={`grad-${isPositive ? 'pos' : 'neg'}`} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity="0.2" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={`${pathD} L 100,100 L 0,100 Z`} fill={`url(#grad-${isPositive ? 'pos' : 'neg'})`} />
+      <path d={pathD} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-80" />
+    </svg>
+  );
+};
+
+const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-md' }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose} />
+      <div className={`relative bg-[#0A0A0A] md:border md:border-[#1A1A1A] w-full ${maxWidth} max-h-[90vh] rounded-t-[32px] md:rounded-2xl flex flex-col shadow-2xl
+        animate-in slide-in-from-bottom-full md:slide-in-from-bottom-8 md:zoom-in-95 duration-300 ease-out`}>
+        
+        <div className="md:hidden w-full flex justify-center pt-3 pb-1" onClick={onClose}>
+          <div className="w-12 h-1.5 bg-[#2A2A2A] rounded-full" />
+        </div>
+
+        <div className="flex justify-between items-center px-6 py-4 border-b border-[#1A1A1A]">
+          <h3 className="text-lg font-semibold text-[#F5F5F5] tracking-tight">{title}</h3>
+          <button onClick={onClose} className="p-2 -mr-2 text-[#8A8A8A] hover:text-[#F5F5F5] transition-colors rounded-full hover:bg-[#111111] hover:scale-105 active:scale-95">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <div className="p-6 overflow-y-auto custom-scrollbar">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// ==========================================
+// MAIN APP COMPONENT
+// ==========================================
+
+export default function RaplyApp() {
+  const [items, setItems] = useState([]);
+  const [wishlist, setWishlist] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+  const [settings, setSettings] = useState(normalizeSettings({}));
+  const [activeTab, setActiveTab] = useState('home');
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
+  const [apiStatus, setApiStatus] = useState('Connected'); // Connected | Updating | Offline | API unavailable
+  
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isWishlistAddOpen, setIsWishlistAddOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedWishlistItem, setSelectedWishlistItem] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Inicialização
+  useEffect(() => {
+    setItems(storage.getItems());
+    setWishlist(storage.getWishlist());
+    setNotifications(storage.getNotifications());
+    setSettings(storage.getSettings());
+
+    const handleOnline = () => { setIsOnline(true); setApiStatus('Connected'); };
+    const handleOffline = () => { setIsOnline(false); setApiStatus('Offline'); };
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  useEffect(() => { storage.saveItems(items); }, [items]);
+  useEffect(() => { storage.saveWishlist(wishlist); }, [wishlist]);
+  useEffect(() => { storage.saveNotifications(notifications); }, [notifications]);
+  useEffect(() => { storage.saveSettings(settings); }, [settings]);
+
+  // Verificar Alertas de Wishlist Automaticamente
+  useEffect(() => {
+    if (wishlist.length === 0) return;
+    let updated = false;
+    const newWishlist = wishlist.map(w => {
+      const isAffordable = w.currentPrice <= w.availableRobux;
+      if (isAffordable && !w.isAffordable) {
+        updated = true;
+        // Criar Notificação Interna
+        const noteMsg = `Price Alert: ${w.name} is now within your budget (${formatRobux(w.currentPrice, settings.currencyFormat)})!`;
+        setNotifications(prev => [{ id: Date.now() + Math.random(), message: noteMsg, viewed: false, time: new Date().toISOString() }, ...prev]);
+        showToast(`Price Alert: ${w.name} is affordable!`, 'success');
+      }
+      return { ...w, isAffordable };
+    });
+    if (updated) setWishlist(newWishlist);
+  }, [items, wishlist, settings.currencyFormat]);
+
+  const showToast = useCallback((message, type = 'success') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, message, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
+  }, []);
+
+  // Hotkeys
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+      if (e.key === 'Escape') {
+        setIsSearchOpen(false); setIsAddOpen(false); setIsWishlistAddOpen(false); setSelectedItem(null); setSelectedWishlistItem(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Inteligente Auto Refresh
+  const refreshMarketData = useCallback(async () => {
+    if ((items.length === 0 && wishlist.length === 0) || isUpdating || !isOnline) return;
+    setIsUpdating(true);
+    setApiStatus('Updating');
+    let updatedCount = 0;
+    
+    try {
+      const newItems = [...items];
+      for (let i = 0; i < newItems.length; i++) {
+        const item = newItems[i];
+        try {
+          const fresh = await RobloxAPI.getAsset(item.assetId);
+          if (fresh.currentPrice !== item.currentPrice || fresh.rap !== item.rap) {
+            const newHistory = item.isLimited ? [...item.history, fresh.currentPrice] : [];
+            if (newHistory.length > 30) newHistory.shift();
+            newItems[i] = { ...item, ...fresh, history: newHistory, lastUpdated: new Date().toISOString() };
+            updatedCount++;
+          }
+        } catch (err) {}
+        await new Promise(r => setTimeout(r, 150));
+      }
+      setItems(newItems);
+
+      const newWish = [...wishlist];
+      for (let i = 0; i < newWish.length; i++) {
+        const w = newWish[i];
+        try {
+          const fresh = await RobloxAPI.getAsset(w.assetId);
+          if (fresh.currentPrice !== w.currentPrice) {
+            newWish[i] = { ...w, currentPrice: fresh.currentPrice, lastChecked: new Date().toISOString() };
+            updatedCount++;
+          }
+        } catch (err) {}
+        await new Promise(r => setTimeout(r, 150));
+      }
+      setWishlist(newWish);
+
+      if (updatedCount > 0) setLastUpdate(Date.now());
+      setApiStatus('Connected');
+    } catch (e) {
+      setApiStatus('API unavailable');
+    } finally {
+      setIsUpdating(false);
+    }
+  }, [items, wishlist, isUpdating, isOnline]);
+
+  useEffect(() => {
+    let interval;
+    if (settings.autoRefresh && settings.refreshInterval > 0 && isOnline) {
+      interval = setInterval(refreshMarketData, settings.refreshInterval * 1000);
+    }
+    return () => clearInterval(interval);
+  }, [settings.autoRefresh, settings.refreshInterval, isOnline, refreshMarketData]);
+
+  // Estatísticas do Portfólio
+  const stats = useMemo(() => {
+    let totalValue = 0, totalInvested = 0, limitedsCount = 0;
+    items.forEach(item => {
+      totalValue += item.currentPrice * item.quantity;
+      totalInvested += item.boughtPrice * item.quantity;
+      if (item.isLimited) limitedsCount++;
+    });
+    const profit = totalValue - totalInvested;
+    const roi = totalInvested > 0 ? (profit / totalInvested) * 100 : 0;
+    return { 
+      totalValue, 
+      totalInvested, 
+      profit, 
+      roi, 
+      isProfitable: profit >= 0,
+      totalAssets: items.length,
+      limitedsCount,
+      wishlistCount: wishlist.length
+    };
+  }, [items, wishlist]);
+
+  const profileDisplayImage = useMemo(() => {
+    const p = settings.profile;
+    if (p.customImage) return p.customImage;
+    if (p.avatarUrl) return p.avatarUrl;
+    return '';
+  }, [settings.profile]);
+
+  const unreadNotesCount = useMemo(() => notifications.filter(n => !n.viewed).length, [notifications]);
+
+
+  // ==========================================
+  // VIEW RENDERERS
+  // ==========================================
+
+  const renderDashboard = () => (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out fill-mode-backwards">
+      
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-[#F5F5F5] tracking-tight mb-1">Your Limiteds, at a glance.</h2>
+          <div className="flex items-center gap-2 text-xs text-[#8A8A8A] font-medium transition-colors">
+            {!isOnline ? (
+              <><Activity className="w-3.5 h-3.5 text-[#FF453A]" /><span className="text-[#FF453A]">Offline</span></>
+            ) : isUpdating ? (
+              <><RefreshCw className="w-3.5 h-3.5 animate-spin text-[#30D158]" /><span className="text-[#30D158]">Updating...</span></>
+            ) : (
+              <><Clock className="w-3.5 h-3.5" /><span>Status: <strong className="text-[#F5F5F5]">{apiStatus}</strong></span></>
+            )}
+          </div>
+        </div>
+        
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button onClick={refreshMarketData} disabled={isUpdating || !isOnline} className="p-3 bg-[#111111] hover:bg-[#1A1A1A] active:scale-95 text-[#F5F5F5] rounded-xl border border-[#1A1A1A] transition-all disabled:opacity-50">
+            <RefreshCw className={`w-5 h-5 ${isUpdating ? 'animate-spin' : ''}`} />
+          </button>
+          <button onClick={() => setIsAddOpen(true)} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-[#F5F5F5] text-[#050505] hover:bg-white active:scale-95 rounded-xl font-semibold transition-all">
+            <Plus className="w-5 h-5" /> Add Asset
+          </button>
+        </div>
+      </div>
+
+      {/* Quick Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 flex flex-col justify-between">
+          <p className="text-[10px] text-[#8A8A8A] uppercase font-semibold">Assets</p>
+          <p className="text-xl font-bold text-[#F5F5F5] mt-1">{stats.totalAssets}</p>
+        </div>
+        <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 flex flex-col justify-between">
+          <p className="text-[10px] text-[#8A8A8A] uppercase font-semibold">Limiteds</p>
+          <p className="text-xl font-bold text-[#F5F5F5] mt-1">{stats.limitedsCount}</p>
+        </div>
+        <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 flex flex-col justify-between">
+          <p className="text-[10px] text-[#8A8A8A] uppercase font-semibold">Wishlist</p>
+          <p className="text-xl font-bold text-[#F5F5F5] mt-1">{stats.wishlistCount}</p>
+        </div>
+        <div className="col-span-2 md:col-span-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-xl p-4 flex flex-col justify-between">
+          <p className="text-[10px] text-[#8A8A8A] uppercase font-semibold">Portfolio Value</p>
+          <p className="text-xl font-bold text-[#F5F5F5] mt-1">
+            <AnimatedNumber value={stats.totalValue} formatFn={(v) => formatRobux(v, settings.currencyFormat)} />
+          </p>
+        </div>
+      </div>
+
+      {/* Principal Performance & Watchlist Preview */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-6 flex flex-col justify-between relative overflow-hidden group">
+          <div>
+            <p className="text-[#8A8A8A] text-sm font-medium mb-2">Today's Performance</p>
+            <div className={`text-3xl md:text-4xl font-bold tracking-tight mb-2 flex items-center gap-2 ${stats.isProfitable ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
+              {stats.profit > 0 ? '+' : ''}<AnimatedNumber value={stats.profit} formatFn={(v) => formatRobux(v, settings.currencyFormat)} />
+            </div>
+            <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold ${stats.isProfitable ? 'bg-[#30D158]/10 text-[#30D158]' : 'bg-[#FF453A]/10 text-[#FF453A]'}`}>
+              {stats.isProfitable ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+              {stats.roi.toFixed(2)}% ROI ({formatRobux(stats.totalInvested, settings.currencyFormat)} invested)
+            </div>
+          </div>
+          <div className="absolute right-0 bottom-0 opacity-5 w-40 h-40 pointer-events-none transform group-hover:scale-110 transition-transform">
+            <TrendingUp className="w-full h-full text-white" />
+          </div>
+        </div>
+
+        {/* Watchlist Preview Card */}
+        <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-5 flex flex-col justify-between">
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="text-sm font-semibold text-[#F5F5F5]">Wishlist Watch</h3>
+            <button onClick={() => setActiveTab('wishlist')} className="text-xs text-[#8A8A8A] hover:text-[#F5F5F5] transition-colors">View All</button>
+          </div>
+          {wishlist.length === 0 ? (
+            <p className="text-xs text-[#8A8A8A] py-6 text-center">No items in wishlist.</p>
+          ) : (
+            <div className="space-y-2">
+              {wishlist.slice(0, 3).map(w => {
+                const diff = w.targetPrice - w.availableRobux;
+                return (
+                  <div key={w.id} onClick={() => setSelectedWishlistItem(w)} className="p-2.5 bg-[#111111] hover:bg-[#1A1A1A] rounded-xl border border-[#1A1A1A] cursor-pointer transition-colors flex items-center justify-between">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <RobloxImage src={w.imageUrl} className="w-8 h-8 rounded-lg border border-[#1A1A1A] bg-[#050505]" />
+                      <div className="min-w-0">
+                        <p className="text-xs font-medium text-[#F5F5F5] truncate">{w.name}</p>
+                        <p className="text-[10px] text-[#8A8A8A]">{formatRobux(w.currentPrice, settings.currencyFormat)}</p>
+                      </div>
+                    </div>
+                    {w.isAffordable ? (
+                      <span className="text-[10px] font-bold text-[#30D158] bg-[#30D158]/10 px-2 py-0.5 rounded">AFFORDABLE</span>
+                    ) : (
+                      <span className="text-[10px] text-[#8A8A8A]">+{formatRobux(Math.max(0, diff), settings.currencyFormat)}</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Lista Top Assets */}
+      {items.length === 0 ? (
+        <div className="py-16 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500">
+          <div className="w-16 h-16 bg-[#111111] rounded-full flex items-center justify-center mb-4 border border-[#1A1A1A]">
+            <Wallet className="w-6 h-6 text-[#8A8A8A]" />
+          </div>
+          <h3 className="text-lg font-medium text-[#F5F5F5] mb-2">Your portfolio is empty.</h3>
+          <p className="text-[#8A8A8A] text-sm max-w-sm mb-6">Add any Roblox asset or Limited to track its value.</p>
+          <button onClick={() => setIsAddOpen(true)} className="text-sm font-semibold text-[#050505] bg-[#F5F5F5] px-4 py-2 rounded-lg hover:bg-white active:scale-95 transition-all">
+            Add Asset
+          </button>
+        </div>
+      ) : (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-[#F5F5F5]">Top Holdings</h3>
+            <button onClick={() => setActiveTab('portfolio')} className="text-sm text-[#8A8A8A] hover:text-[#F5F5F5] font-medium transition-colors">View All</button>
+          </div>
+          <div className="space-y-2">
+            {[...items].sort((a,b) => (b.currentPrice * b.quantity) - (a.currentPrice * a.quantity)).slice(0, 5).map((item, index) => (
+              <div key={item.id} className="animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards" style={{ animationDelay: `${index * 50}ms` }}>
+                <ItemRow item={item} onClick={() => setSelectedItem(item)} currencyFormat={settings.currencyFormat} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderPortfolio = () => (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out fill-mode-backwards">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-[#F5F5F5] tracking-tight">Portfolio</h2>
+        <button onClick={() => setIsAddOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-[#F5F5F5] text-[#050505] hover:bg-white rounded-xl font-semibold text-sm transition-all active:scale-95">
+          <Plus className="w-4 h-4" /> Add Asset
+        </button>
+      </div>
+      
+      {items.length === 0 ? (
+        <p className="text-[#8A8A8A] text-sm py-10 text-center">No assets in portfolio.</p>
+      ) : (
+        <div className="bg-[#0A0A0A] rounded-2xl border border-[#1A1A1A] overflow-hidden shadow-lg">
+          <div className="overflow-x-auto custom-scrollbar">
+            <table className="w-full text-left border-collapse min-w-[700px]">
+              <thead>
+                <tr className="border-b border-[#1A1A1A] text-[#8A8A8A] text-xs font-medium uppercase tracking-wider bg-[#111111]">
+                  <th className="p-4 pl-6 font-medium">Asset</th>
+                  <th className="p-4 font-medium text-center">Type</th>
+                  <th className="p-4 font-medium text-right">Avg Cost</th>
+                  <th className="p-4 font-medium text-right">Current Price</th>
+                  <th className="p-4 font-medium text-right">Profit</th>
+                  <th className="p-4 pr-6 font-medium text-right">Total Value</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm divide-y divide-[#1A1A1A]">
+                {[...items].sort((a,b) => (b.currentPrice * b.quantity) - (a.currentPrice * a.quantity)).map((item, index) => {
+                  const profit = (item.currentPrice - item.boughtPrice) * item.quantity;
+                  const roi = item.boughtPrice > 0 ? ((item.currentPrice - item.boughtPrice) / item.boughtPrice) * 100 : 0;
+                  return (
+                    <tr key={item.id} onClick={() => setSelectedItem(item)} className="hover:bg-[#111111] transition-colors cursor-pointer group animate-in fade-in fill-mode-backwards" style={{ animationDelay: `${index * 30}ms`}}>
+                      <td className="p-4 pl-6 flex items-center gap-3">
+                        <RobloxImage src={item.imageUrl} className="w-10 h-10 rounded-lg border border-[#1A1A1A] p-1 group-hover:scale-110 transition-transform duration-300" />
+                        <div>
+                          <p className="text-[#F5F5F5] font-medium truncate max-w-[200px]">{item.name}</p>
+                          <p className="text-xs text-[#8A8A8A]">Qty: {item.quantity}</p>
+                        </div>
+                      </td>
+                      <td className="p-4 text-center">
+                        {item.isLimited ? (
+                          <span className="text-[10px] font-semibold bg-[#30D158]/10 text-[#30D158] px-2 py-0.5 rounded">LIMITED</span>
+                        ) : (
+                          <span className="text-[10px] font-medium bg-[#1A1A1A] text-[#8A8A8A] px-2 py-0.5 rounded">NON-LIMITED</span>
+                        )}
+                      </td>
+                      <td className="p-4 text-right text-[#8A8A8A]">{formatRobux(item.boughtPrice, settings.currencyFormat)}</td>
+                      <td className="p-4 text-right text-[#F5F5F5] font-medium">{formatRobux(item.currentPrice, settings.currencyFormat)}</td>
+                      <td className="p-4 text-right">
+                        <div className={`font-medium ${profit >= 0 ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
+                          {profit > 0 ? '+' : ''}{formatRobux(profit, settings.currencyFormat)}
+                        </div>
+                        <div className="text-xs opacity-70 mt-0.5">{roi > 0 ? '+' : ''}{roi.toFixed(1)}%</div>
+                      </td>
+                      <td className="p-4 pr-6 text-right font-semibold text-[#F5F5F5]">
+                        {formatRobux(item.currentPrice * item.quantity, settings.currencyFormat)}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderWishlist = () => (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out fill-mode-backwards">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-[#F5F5F5] tracking-tight">Wishlist</h2>
+          <p className="text-xs text-[#8A8A8A] mt-0.5">Monitor prices and budget readiness for your dream items.</p>
+        </div>
+        <button onClick={() => setIsWishlistAddOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-[#F5F5F5] text-[#050505] hover:bg-white rounded-xl font-semibold text-sm transition-all active:scale-95">
+          <Plus className="w-4 h-4" /> Add Wishlist Item
+        </button>
+      </div>
+
+      {wishlist.length === 0 ? (
+        <div className="py-20 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500">
+          <Heart className="w-12 h-12 text-[#1A1A1A] mb-4" />
+          <h3 className="text-lg font-medium text-[#F5F5F5] mb-1">Your wishlist is empty</h3>
+          <p className="text-[#8A8A8A] text-sm mb-6">Add items you want to buy and track your Robux savings.</p>
+          <button onClick={() => setIsWishlistAddOpen(true)} className="text-sm font-semibold text-[#050505] bg-[#F5F5F5] px-4 py-2 rounded-lg hover:bg-white active:scale-95 transition-all">
+            Add Wishlist Item
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {wishlist.map((w, index) => {
+            const diff = w.targetPrice - w.availableRobux;
+            const progress = Math.min(100, Math.max(0, (w.availableRobux / w.targetPrice) * 100));
+            return (
+              <div 
+                key={w.id} 
+                onClick={() => setSelectedWishlistItem(w)}
+                className={`p-5 bg-[#0A0A0A] hover:bg-[#111111] border rounded-2xl cursor-pointer transition-all duration-300 flex flex-col justify-between group ${
+                  w.isAffordable ? 'border-[#30D158]/50 shadow-[0_0_20px_rgba(48,209,88,0.15)]' : 'border-[#1A1A1A] hover:border-[#2A2A2A]'
+                }`}
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className="flex items-start gap-4">
+                  <RobloxImage src={w.imageUrl} className="w-16 h-16 rounded-xl border border-[#1A1A1A] bg-[#050505] p-1 flex-shrink-0 group-hover:scale-105 transition-transform" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-bold text-[#F5F5F5] truncate">{w.name}</h4>
+                      {w.isAffordable && (
+                        <span className="text-[10px] font-bold text-[#30D158] bg-[#30D158]/10 px-2 py-0.5 rounded animate-pulse">AFFORDABLE NOW</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#8A8A8A] mt-1">Current: <strong className="text-[#F5F5F5]">{formatRobux(w.currentPrice, settings.currencyFormat)}</strong></p>
+                    <p className="text-xs text-[#8A8A8A]">Target: {formatRobux(w.targetPrice, settings.currencyFormat)}</p>
+                  </div>
+                </div>
+
+                <div className="mt-5 space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#8A8A8A]">Your Robux: <strong className="text-[#F5F5F5]">{formatRobux(w.availableRobux, settings.currencyFormat)}</strong></span>
+                    <span className={w.isAffordable ? 'text-[#30D158] font-bold' : 'text-[#8A8A8A]'}>
+                      {w.isAffordable ? 'Goal reached!' : `${formatRobux(diff, settings.currencyFormat)} needed`}
+                    </span>
+                  </div>
+                  <div className="w-full bg-[#1A1A1A] h-2 rounded-full overflow-hidden">
+                    <div className={`h-full transition-all duration-700 ${w.isAffordable ? 'bg-[#30D158]' : 'bg-[#F5F5F5]'}`} style={{ width: `${progress}%` }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderFavorites = () => (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out fill-mode-backwards">
+      <h2 className="text-2xl font-bold text-[#F5F5F5] tracking-tight">Favorites</h2>
+      
+      {items.filter(i => i.isFavorite).length === 0 ? (
+        <div className="py-20 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500">
+          <Star className="w-12 h-12 text-[#1A1A1A] mb-4" />
+          <h3 className="text-lg font-medium text-[#F5F5F5] mb-1">Nothing saved yet</h3>
+          <p className="text-[#8A8A8A] text-sm">Star an asset in your portfolio to keep it here.</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {items.filter(i => i.isFavorite).map((item, index) => (
+             <div key={item.id} className="animate-in fade-in slide-in-from-bottom-2 fill-mode-backwards" style={{ animationDelay: `${index * 50}ms` }}>
+               <ItemRow item={item} onClick={() => setSelectedItem(item)} currencyFormat={settings.currencyFormat} />
+             </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderSettings = () => (
+    <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 ease-out fill-mode-backwards">
+      <h2 className="text-2xl font-bold text-[#F5F5F5] tracking-tight">Settings</h2>
+
+      <div className="space-y-8">
+        
+        {/* Profile Section */}
+        <section>
+          <h3 className="text-xs font-semibold text-[#8A8A8A] uppercase tracking-wider mb-3 ml-1">Profile</h3>
+          <div className="bg-[#0A0A0A] rounded-2xl border border-[#1A1A1A] p-5 space-y-6">
+            
+            <div className="flex items-center gap-4">
+               <RobloxImage src={profileDisplayImage} type="user" className="w-16 h-16 rounded-full border border-[#1A1A1A] shadow-md bg-[#111111]" />
+               <div className="flex-1 min-w-0">
+                  <h4 className="text-[#F5F5F5] font-semibold text-lg truncate">
+                    {settings.profile.displayName || 'No Profile Loaded'}
+                  </h4>
+                  <p className="text-[#8A8A8A] text-sm truncate">
+                    {settings.profile.username ? `@${settings.profile.username}` : 'Enter your username or user ID'}
+                  </p>
+                  {settings.profile.userId && <p className="text-[10px] text-[#8A8A8A] font-mono mt-0.5">ID: {settings.profile.userId}</p>}
+               </div>
+            </div>
+
+            <div className="space-y-4 pt-2 border-t border-[#1A1A1A]">
+              <div>
+                <label className="block text-xs font-medium text-[#8A8A8A] mb-1.5 uppercase tracking-wider">Roblox Username or User ID</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Builderman or 156" 
+                    value={settings.profile.username}
+                    onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, username: e.target.value }})}
+                    className="flex-1 bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F5F5F5] transition-colors" 
+                  />
+                  <button 
+                    onClick={async () => {
+                      if(!settings.profile.username.trim()) return;
+                      try {
+                        const prof = await RobloxAPI.getUser(settings.profile.username.trim());
+                        setSettings({ ...settings, profile: { ...settings.profile, ...prof, customImage: '', customAssetId: '' }});
+                        showToast("Profile loaded successfully");
+                      } catch (err) {
+                        showToast("User not found", "error");
+                      }
+                    }}
+                    className="bg-[#1A1A1A] hover:bg-[#2A2A2A] text-[#F5F5F5] px-4 py-2 rounded-xl text-sm font-medium transition-colors active:scale-95"
+                  >
+                    Load
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-[#8A8A8A] mb-1.5 uppercase tracking-wider">Custom Avatar (Asset ID)</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="e.g. 19027209" 
+                    value={settings.profile.customAssetId}
+                    onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, customAssetId: e.target.value }})}
+                    className="flex-1 bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#F5F5F5] transition-colors" 
+                  />
+                  <button 
+                    onClick={async () => {
+                      if(!settings.profile.customAssetId.trim()) return;
+                      try {
+                        const url = await RobloxAPI.getAssetThumbnail(settings.profile.customAssetId.trim());
+                        setSettings({ ...settings, profile: { ...settings.profile, customImage: url }});
+                        showToast("Custom avatar set");
+                      } catch (err) {
+                        showToast("Failed to fetch asset", "error");
+                      }
+                    }}
+                    className="bg-[#1A1A1A] hover:bg-[#2A2A2A] text-[#F5F5F5] px-4 py-2 rounded-xl text-sm font-medium transition-colors active:scale-95"
+                  >
+                    Use
+                  </button>
+                </div>
+              </div>
+              
+              <div className="pt-2">
+                <button 
+                  onClick={() => {
+                    setSettings({ ...settings, profile: { username: '', userId: '', displayName: '', avatarUrl: '', customImage: '', customAssetId: '' }});
+                    showToast("Profile reset");
+                  }}
+                  className="text-[#FF453A] text-xs font-medium hover:underline"
+                >
+                  Reset Profile
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* Market Data */}
+        <section>
+          <h3 className="text-xs font-semibold text-[#8A8A8A] uppercase tracking-wider mb-3 ml-1">Market</h3>
+          <div className="bg-[#0A0A0A] rounded-2xl border border-[#1A1A1A] overflow-hidden">
+            <div className="p-4 flex items-center justify-between border-b border-[#1A1A1A]">
+              <div>
+                <p className="text-[#F5F5F5] font-medium text-sm">Auto Refresh</p>
+                <p className="text-[#8A8A8A] text-xs mt-0.5">Keep prices synced automatically</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" className="sr-only peer" checked={settings.autoRefresh} onChange={e => setSettings({...settings, autoRefresh: e.target.checked})} />
+                <div className="w-10 h-6 bg-[#1A1A1A] rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#30D158] peer-checked:after:bg-[#050505]"></div>
+              </label>
+            </div>
+            <div className="p-4 flex items-center justify-between border-b border-[#1A1A1A]">
+              <p className="text-[#F5F5F5] font-medium text-sm">Refresh Interval</p>
+              <select 
+                value={settings.refreshInterval} onChange={e => setSettings({...settings, refreshInterval: Number(e.target.value)})}
+                disabled={!settings.autoRefresh}
+                className="bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#30D158] disabled:opacity-50 transition-colors"
+              >
+                <option value={30}>30s</option>
+                <option value={60}>1m</option>
+                <option value={300}>5m</option>
+              </select>
+            </div>
+            <div className="p-4 flex items-center justify-between">
+              <p className="text-[#F5F5F5] font-medium text-sm">Currency Format</p>
+              <select 
+                value={settings.currencyFormat} onChange={e => setSettings({...settings, currencyFormat: e.target.value})}
+                className="bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-[#30D158] transition-colors"
+              >
+                <option value="suffix">1,250 R$</option>
+                <option value="prefix">R$ 1,250</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        {/* Data Management */}
+        <section>
+          <h3 className="text-xs font-semibold text-[#8A8A8A] uppercase tracking-wider mb-3 ml-1">Data Management</h3>
+          <div className="bg-[#0A0A0A] rounded-2xl border border-[#1A1A1A] overflow-hidden">
+            <button onClick={() => {
+              const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({items, wishlist, settings}));
+              const dlAnchorElem = document.createElement('a');
+              dlAnchorElem.setAttribute("href", dataStr);
+              dlAnchorElem.setAttribute("download", "raply_backup.json");
+              dlAnchorElem.click();
+              showToast("Data exported successfully");
+            }} className="w-full p-4 flex items-center gap-3 text-sm font-medium text-[#F5F5F5] hover:bg-[#111111] transition-colors border-b border-[#1A1A1A] text-left active:bg-[#1A1A1A]">
+              <Download className="w-4 h-4 text-[#8A8A8A]" /> Export Backup
+            </button>
+            <label className="w-full p-4 flex items-center gap-3 text-sm font-medium text-[#F5F5F5] hover:bg-[#111111] transition-colors cursor-pointer border-b border-[#1A1A1A] active:bg-[#1A1A1A]">
+              <Upload className="w-4 h-4 text-[#8A8A8A]" /> Import Backup
+              <input type="file" accept=".json" className="hidden" onChange={e => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                  try {
+                    const data = JSON.parse(event.target.result);
+                    if (data.items) setItems(data.items.map(normalizeItem));
+                    if (data.wishlist) setWishlist(data.wishlist.map(normalizeWishlistItem));
+                    if (data.settings) setSettings(normalizeSettings(data.settings));
+                    showToast("Data imported successfully");
+                  } catch (err) {
+                    showToast("Invalid backup file", "error");
+                  }
+                };
+                reader.readAsText(file);
+              }} />
+            </label>
+            <button onClick={() => {
+              if (window.confirm("Are you sure? This will delete all local data forever.")) {
+                setItems([]);
+                setWishlist([]);
+                setNotifications([]);
+                showToast("All data cleared");
+              }
+            }} className="w-full p-4 flex items-center gap-3 text-sm font-medium text-[#FF453A] hover:bg-[#111111] transition-colors text-left active:bg-[#1A1A1A]">
+              <Trash2 className="w-4 h-4" /> Clear Local Data
+            </button>
+          </div>
+        </section>
+
+        {/* About */}
+        <section className="pt-4 text-center pb-8">
+          <h1 className="text-xl font-bold tracking-widest text-[#F5F5F5]">RAPLY</h1>
+          <p className="text-xs text-[#8A8A8A] mt-1">Built for Roblox Limited collectors.</p>
+          <p className="text-[10px] text-[#8A8A8A] mt-4 opacity-50">Version 2.2.0 (Local)</p>
+        </section>
+
+      </div>
+    </div>
+  );
+
+  // Item Row Component
+  const ItemRow = ({ item, onClick, currencyFormat }) => {
+    const profit = (item.currentPrice - item.boughtPrice) * item.quantity;
+    const isProfitable = profit >= 0;
+
+    return (
+      <div onClick={onClick} className="flex items-center gap-4 p-3 bg-[#0A0A0A] hover:bg-[#111111] border border-[#1A1A1A] hover:border-[#2A2A2A] rounded-xl cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg group active:scale-[0.98]">
+        <div className="w-12 h-12 rounded-lg bg-[#050505] border border-[#1A1A1A] p-1 flex-shrink-0 relative overflow-hidden">
+          <RobloxImage src={item.imageUrl} className="w-full h-full group-hover:scale-110 transition-transform duration-500 ease-out" />
+          {item.isFavorite && (
+            <div className="absolute -top-1 -right-1 bg-[#0A0A0A] rounded-bl p-0.5">
+              <Star className="w-3.5 h-3.5 text-[#F5F5F5] fill-[#F5F5F5]" />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h4 className="text-[#F5F5F5] font-medium text-sm truncate">{item.name}</h4>
+            {item.isLimited ? (
+              <span className="text-[9px] font-semibold bg-[#30D158]/10 text-[#30D158] px-1.5 py-0.2 rounded flex-shrink-0">LIMITED</span>
+            ) : (
+              <span className="text-[9px] font-medium bg-[#1A1A1A] text-[#8A8A8A] px-1.5 py-0.2 rounded flex-shrink-0">NON-LIMITED</span>
+            )}
+          </div>
+          <p className="text-xs text-[#8A8A8A] mt-0.5">
+            {item.isLimited ? `RAP: ${formatRobux(item.rap, currencyFormat)}` : `Type: ${item.assetType}`}
+          </p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="text-[#F5F5F5] font-semibold text-sm transition-colors">{formatRobux(item.currentPrice, currencyFormat)}</p>
+          <p className={`text-xs font-medium mt-0.5 ${isProfitable ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
+            {profit > 0 ? '+' : ''}{formatRobux(profit, currencyFormat)}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+
+  // ==========================================
+  // MODALS & OVERLAYS
+  // ==========================================
+
+  const SearchModal = () => {
+    const searchResults = useMemo(() => {
+      if (!searchQuery) return [];
+      const q = searchQuery.toLowerCase();
+      return items.filter(i => i.name.toLowerCase().includes(q) || i.assetId.includes(q));
+    }, [searchQuery, items]);
+
+    return (
+      <Modal isOpen={isSearchOpen} onClose={() => {setIsSearchOpen(false); setSearchQuery('');}} title="Command Search">
+        <div className="relative mb-4">
+          <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8A8A]" />
+          <input 
+            autoFocus type="text" placeholder="Search portfolio by name or Asset ID..."
+            value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-[#F5F5F5] transition-colors"
+          />
+        </div>
+        <div className="space-y-1 max-h-[50vh] overflow-y-auto custom-scrollbar">
+          {searchResults.length === 0 && searchQuery ? (
+            <p className="text-center text-[#8A8A8A] py-6 text-sm animate-in fade-in">No results found.</p>
+          ) : (
+            searchResults.map(item => (
+              <div key={item.id} onClick={() => { setIsSearchOpen(false); setSearchQuery(''); setSelectedItem(item); }} className="flex items-center gap-3 p-2 hover:bg-[#111111] rounded-lg cursor-pointer transition-colors active:scale-95 group">
+                <RobloxImage src={item.imageUrl} className="w-8 h-8 rounded-md bg-[#050505] p-0.5 border border-[#1A1A1A]" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#F5F5F5] truncate">{item.name}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#8A8A8A] group-hover:text-[#F5F5F5] transition-colors group-hover:translate-x-1" />
+              </div>
+            ))
+          )}
+        </div>
+      </Modal>
+    );
+  };
+
+  const AddModal = () => {
+    const [idInput, setIdInput] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [preview, setPreview] = useState(null);
+    const [error, setError] = useState('');
+    const [form, setForm] = useState({ boughtPrice: '', quantity: '1' });
+
+    useEffect(() => { if(!isAddOpen) { setIdInput(''); setPreview(null); setError(''); } }, [isAddOpen]);
+
+    const handleSearch = async (e) => {
+      e.preventDefault();
+      if (!idInput.trim()) return;
+      setLoading(true); setError(''); setPreview(null);
+      try {
+        const data = await RobloxAPI.getAsset(idInput.trim());
+        setPreview(data);
+        setForm({ boughtPrice: String(data.currentPrice || 0), quantity: '1' });
+      } catch (err) {
+        setError("Could not fetch asset. Check the Asset ID.");
+      } finally { setLoading(false); }
+    };
+
+    const handleAdd = () => {
+      if (!preview) return;
+      const newItem = normalizeItem({
+        ...preview,
+        id: Date.now().toString(),
+        boughtPrice: Number(form.boughtPrice) || 0,
+        quantity: Number(form.quantity) || 1,
+        history: preview.isLimited ? [preview.currentPrice] : []
+      });
+      setItems(prev => [...prev, newItem]);
+      showToast("Asset added to portfolio");
+      setIsAddOpen(false);
+    };
+
+    return (
+      <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Asset">
+        {!preview ? (
+          <form onSubmit={handleSearch} className="space-y-4 animate-in fade-in">
+            <div>
+              <label className="block text-xs font-medium text-[#8A8A8A] mb-1.5 uppercase tracking-wider">Roblox Asset ID</label>
+              <input type="text" inputMode="numeric" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="e.g. 19027209 or any asset" className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 focus:outline-none focus:border-[#F5F5F5] transition-colors" />
+            </div>
+            {error && <p className="text-xs text-[#FF453A] animate-in slide-in-from-top-1">{error}</p>}
+            <button type="submit" disabled={loading || !idInput} className="w-full bg-[#F5F5F5] text-[#050505] font-semibold rounded-xl py-3 hover:bg-white active:scale-[0.98] transition-all disabled:opacity-50 flex justify-center">
+              {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Search Asset'}
+            </button>
+          </form>
+        ) : (
+          <div className="space-y-6 animate-in slide-in-from-right-4 fade-in duration-300">
+            <div className="flex items-center gap-4 bg-[#111111] p-3 rounded-xl border border-[#1A1A1A]">
+              <RobloxImage src={preview.imageUrl} className="w-12 h-12 rounded-lg bg-[#050505]" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-[#F5F5F5] truncate">{preview.name}</p>
+                  {preview.isLimited ? (
+                    <span className="text-[9px] font-semibold bg-[#30D158]/10 text-[#30D158] px-1.5 py-0.2 rounded">LIMITED</span>
+                  ) : (
+                    <span className="text-[9px] font-medium bg-[#1A1A1A] text-[#8A8A8A] px-1.5 py-0.2 rounded">NON-LIMITED</span>
+                  )}
+                </div>
+                <p className="text-xs text-[#8A8A8A] mt-0.5">Price: <span className="text-[#F5F5F5] font-medium">{formatRobux(preview.currentPrice, settings.currencyFormat)}</span></p>
+              </div>
+              <button onClick={() => setPreview(null)} className="p-2 text-[#8A8A8A] hover:text-[#F5F5F5] transition-colors"><X className="w-4 h-4"/></button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-[#8A8A8A] mb-1.5 uppercase tracking-wider">Bought Price</label>
+                <input type="number" value={form.boughtPrice} onChange={e => setForm({...form, boughtPrice: e.target.value})} className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 focus:outline-none focus:border-[#F5F5F5]" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[#8A8A8A] mb-1.5 uppercase tracking-wider">Quantity</label>
+                <input type="number" min="1" value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})} className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 focus:outline-none focus:border-[#F5F5F5]" />
+              </div>
+            </div>
+
+            <button onClick={handleAdd} className="w-full bg-[#F5F5F5] text-[#050505] font-semibold rounded-xl py-3 hover:bg-white active:scale-[0.98] transition-all">
+              Add to Portfolio
+            </button>
+          </div>
+        )}
+      </Modal>
+    );
+  };
+
+  const AddWishlistModal = () => {
+    const [idInput, setIdInput] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [preview, setPreview] = useState(null);
+    const [error, setError] = useState('');
+    const [form, setForm] = useState({ targetPrice: '', availableRobux: '' });
+
+    const handleSearch = async (e) => {
+      e.preventDefault();
+      if (!idInput.trim()) return;
+      setLoading(true); setError(''); setPreview(null);
+      try {
+        const data = await RobloxAPI.getAsset(idInput.trim());
+        setPreview(data);
+        setForm({ targetPrice: String(data.currentPrice || 1000), availableRobux: '0' });
+      } catch (err) {
+        setError("Could not find asset.");
+      } finally { setLoading(false); }
+    };
+
+    const handleAdd = () => {
+      if (!preview) return;
+      const newWish = normalizeWishlistItem({
+        id: Date.now().toString(),
+        assetId: preview.assetId,
+        name: preview.name,
+        imageUrl: preview.imageUrl,
+        currentPrice: preview.currentPrice,
+        targetPrice: Number(form.targetPrice) || preview.currentPrice,
+        availableRobux: Number(form.availableRobux) || 0
+      });
+      setWishlist(prev => [...prev, newWish]);
+      showToast("Added to wishlist");
+      setIsWishlistAddOpen(false);
+    };
+
+    return (
+      <Modal isOpen={isWishlistAddOpen} onClose={() => setIsWishlistAddOpen(false)} title="Add to Wishlist">
+        {!preview ? (
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-[#8A8A8A] mb-1.5 uppercase tracking-wider">Asset ID</label>
+              <input type="text" inputMode="numeric" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="e.g. 19027209" className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 focus:outline-none focus:border-[#F5F5F5]" />
+            </div>
+            {error && <p className="text-xs text-[#FF453A]">{error}</p>}
+            <button type="submit" disabled={loading || !idInput} className="w-full bg-[#F5F5F5] text-[#050505] font-semibold rounded-xl py-3 hover:bg-white active:scale-[0.98] transition-all disabled:opacity-50 flex justify-center">
+              {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : 'Search'}
+            </button>
+          </form>
+        ) : (
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 bg-[#111111] p-3 rounded-xl border border-[#1A1A1A]">
+              <RobloxImage src={preview.imageUrl} className="w-12 h-12 rounded-lg bg-[#050505]" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-[#F5F5F5] truncate">{preview.name}</p>
+                <p className="text-xs text-[#8A8A8A] mt-0.5">Current: <span className="text-[#F5F5F5] font-medium">{formatRobux(preview.currentPrice, settings.currencyFormat)}</span></p>
+              </div>
+              <button onClick={() => setPreview(null)} className="p-2 text-[#8A8A8A] hover:text-[#F5F5F5]"><X className="w-4 h-4"/></button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-[#8A8A8A] mb-1.5 uppercase tracking-wider">Target Price</label>
+                <input type="number" value={form.targetPrice} onChange={e => setForm({...form, targetPrice: e.target.value})} className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 focus:outline-none focus:border-[#F5F5F5]" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-[#8A8A8A] mb-1.5 uppercase tracking-wider">Your Robux</label>
+                <input type="number" value={form.availableRobux} onChange={e => setForm({...form, availableRobux: e.target.value})} className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 focus:outline-none focus:border-[#F5F5F5]" />
+              </div>
+            </div>
+
+            <button onClick={handleAdd} className="w-full bg-[#F5F5F5] text-[#050505] font-semibold rounded-xl py-3 hover:bg-white active:scale-[0.98] transition-all">
+              Save to Wishlist
+            </button>
+          </div>
+        )}
+      </Modal>
+    );
+  };
+
+  const ItemDetailsModal = () => {
+    if (!selectedItem) return null;
+    
+    const profit = (selectedItem.currentPrice - selectedItem.boughtPrice) * selectedItem.quantity;
+    const roi = selectedItem.boughtPrice > 0 ? ((selectedItem.currentPrice - selectedItem.boughtPrice) / selectedItem.boughtPrice) * 100 : 0;
+    const isProfitable = profit >= 0;
+    
+    const chartData = selectedItem.isLimited && selectedItem.history.length > 1 
+      ? selectedItem.history 
+      : [selectedItem.boughtPrice, selectedItem.currentPrice]; 
+
+    const toggleFavorite = () => {
+      setItems(prev => prev.map(i => i.id === selectedItem.id ? { ...i, isFavorite: !i.isFavorite } : i));
+      setSelectedItem(prev => ({ ...prev, isFavorite: !prev.isFavorite }));
+      showToast(selectedItem.isFavorite ? "Removed from favorites" : "Added to favorites");
+    };
+
+    const handleRemove = () => {
+      setItems(prev => prev.filter(i => i.id !== selectedItem.id));
+      setSelectedItem(null);
+      showToast("Removed from portfolio");
+    };
+
+    return (
+      <Modal isOpen={!!selectedItem} onClose={() => setSelectedItem(null)} title="Asset Details" maxWidth="max-w-lg">
+        <div className="space-y-6">
+          
+          <div className="flex items-start gap-5">
+            <div className="w-28 h-28 rounded-2xl bg-[#111111] border border-[#1A1A1A] p-2 flex-shrink-0 relative overflow-hidden group">
+              <RobloxImage src={selectedItem.imageUrl} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 ease-out" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-start">
+                <div className="min-w-0 pr-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    {selectedItem.isLimited ? (
+                      <span className="text-[9px] font-semibold bg-[#30D158]/10 text-[#30D158] px-1.5 py-0.2 rounded">LIMITED</span>
+                    ) : (
+                      <span className="text-[9px] font-medium bg-[#1A1A1A] text-[#8A8A8A] px-1.5 py-0.2 rounded">NON-LIMITED</span>
+                    )}
+                  </div>
+                  <h2 className="text-lg font-bold text-[#F5F5F5] leading-tight truncate">{selectedItem.name}</h2>
+                </div>
+                <button onClick={toggleFavorite} className={`p-2 -mt-1 -mr-2 rounded-full hover:bg-[#111111] transition-all active:scale-90 ${selectedItem.isFavorite ? 'animate-in zoom-in duration-200' : ''}`}>
+                  <Star className={`w-5 h-5 ${selectedItem.isFavorite ? 'text-[#F5F5F5] fill-[#F5F5F5]' : 'text-[#8A8A8A]'}`} />
+                </button>
+              </div>
+              <p className="text-[#8A8A8A] text-xs font-mono mt-1">ID: {selectedItem.assetId}</p>
+              
+              <div className="mt-3 flex gap-4">
+                <div>
+                  <p className="text-[10px] text-[#8A8A8A] uppercase tracking-wider mb-0.5">Current Price</p>
+                  <p className="text-base font-bold text-[#F5F5F5]">{formatRobux(selectedItem.currentPrice, settings.currencyFormat)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-[#8A8A8A] uppercase tracking-wider mb-0.5">Quantity</p>
+                  <p className="text-base font-bold text-[#F5F5F5]">{selectedItem.quantity}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Gráfico ou Aviso de Non-Limited */}
+          {selectedItem.isLimited ? (
+            <div className="bg-[#111111] border border-[#1A1A1A] rounded-2xl p-4 transition-colors hover:border-[#2A2A2A]">
+              <h3 className="text-xs font-medium text-[#8A8A8A] mb-4">Price History (RAP)</h3>
+              <div className="h-28 w-full">
+                <SmoothSparkline data={chartData} isPositive={isProfitable} />
+              </div>
+            </div>
+          ) : (
+            <div className="bg-[#111111] border border-[#1A1A1A] rounded-2xl p-4 text-center">
+              <p className="text-xs text-[#8A8A8A]">Resale and RAP data are unavailable for non-Limited assets.</p>
+            </div>
+          )}
+
+          {/* Seção de Resellers (Apenas para Limiteds) */}
+          {selectedItem.isLimited && (
+            <div className="bg-[#111111] border border-[#1A1A1A] rounded-2xl p-4 space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xs font-medium text-[#8A8A8A] uppercase tracking-wider">Active Resellers</h3>
+                <span className="text-xs text-[#F5F5F5] font-semibold">Lowest: {formatRobux(selectedItem.lowestResellerPrice || selectedItem.currentPrice, settings.currencyFormat)}</span>
+              </div>
+              {selectedItem.resellers && selectedItem.resellers.length > 0 ? (
+                <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+                  {selectedItem.resellers.map((res, i) => (
+                    <div key={i} className="flex items-center justify-between p-2.5 bg-[#050505] rounded-xl border border-[#1A1A1A] text-xs">
+                      <div>
+                        <p className="font-medium text-[#F5F5F5]">{res.sellerName}</p>
+                        <p className="text-[10px] text-[#8A8A8A]">Stock: {res.quantity}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-[#30D158]">{formatRobux(res.price, settings.currencyFormat)}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-[#8A8A8A] py-2 text-center">No reseller data available.</p>
+              )}
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-3">
+             <div className="bg-[#111111] p-4 rounded-xl border border-[#1A1A1A]">
+               <p className="text-[10px] text-[#8A8A8A] uppercase tracking-wider mb-1">Avg Cost</p>
+               <p className="text-sm font-medium text-[#F5F5F5]">{formatRobux(selectedItem.boughtPrice, settings.currencyFormat)}</p>
+            </div>
+            <div className="bg-[#111111] p-4 rounded-xl border border-[#1A1A1A]">
+               <p className="text-[10px] text-[#8A8A8A] uppercase tracking-wider mb-1">Total Profit</p>
+               <p className={`text-sm font-semibold flex items-center gap-2 ${isProfitable ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
+                 {profit > 0 ? '+' : ''}{formatRobux(profit, settings.currencyFormat)}
+                 <span className="text-[10px] opacity-80 font-medium">({roi > 0 ? '+' : ''}{roi.toFixed(1)}%)</span>
+               </p>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <button onClick={handleRemove} className="w-full py-3 bg-[#FF453A]/10 text-[#FF453A] hover:bg-[#FF453A]/20 active:scale-[0.98] rounded-xl text-sm font-semibold transition-all">
+              Remove Asset
+            </button>
+          </div>
+
+        </div>
+      </Modal>
+    );
+  };
+
+  const WishlistDetailsModal = () => {
+    if (!selectedWishlistItem) return null;
+
+    const handleRemove = () => {
+      setWishlist(prev => prev.filter(w => w.id !== selectedWishlistItem.id));
+      setSelectedWishlistItem(null);
+      showToast("Removed from wishlist");
+    };
+
+    return (
+      <Modal isOpen={!!selectedWishlistItem} onClose={() => setSelectedWishlistItem(null)} title="Wishlist Details" maxWidth="max-w-md">
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <RobloxImage src={selectedWishlistItem.imageUrl} className="w-20 h-20 rounded-2xl bg-[#111111] border border-[#1A1A1A] p-2" />
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-bold text-[#F5F5F5] truncate">{selectedWishlistItem.name}</h2>
+              <p className="text-xs text-[#8A8A8A] mt-0.5">Current: <strong className="text-[#F5F5F5]">{formatRobux(selectedWishlistItem.currentPrice, settings.currencyFormat)}</strong></p>
+              {selectedWishlistItem.isAffordable && (
+                <span className="inline-block mt-2 text-[10px] font-bold text-[#30D158] bg-[#30D158]/10 px-2 py-0.5 rounded">AFFORDABLE NOW</span>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-[#111111] p-4 rounded-2xl border border-[#1A1A1A] space-y-3">
+            <div className="flex justify-between text-xs">
+              <span className="text-[#8A8A8A]">Target Price</span>
+              <span className="text-[#F5F5F5] font-semibold">{formatRobux(selectedWishlistItem.targetPrice, settings.currencyFormat)}</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-[#8A8A8A]">Your Robux</span>
+              <span className="text-[#F5F5F5] font-semibold">{formatRobux(selectedWishlistItem.availableRobux, settings.currencyFormat)}</span>
+            </div>
+            <div className="flex justify-between text-xs pt-2 border-t border-[#1A1A1A]">
+              <span className="text-[#8A8A8A]">Difference</span>
+              <span className={`font-semibold ${selectedWishlistItem.availableRobux >= selectedWishlistItem.targetPrice ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
+                {formatRobux(Math.abs(selectedWishlistItem.targetPrice - selectedWishlistItem.availableRobux), settings.currencyFormat)} {selectedWishlistItem.availableRobux >= selectedWishlistItem.targetPrice ? 'surplus' : 'needed'}
+              </span>
+            </div>
+          </div>
+
+          <button onClick={handleRemove} className="w-full py-3 bg-[#FF453A]/10 text-[#FF453A] hover:bg-[#FF453A]/20 rounded-xl text-sm font-semibold transition-all">
+            Remove from Wishlist
+          </button>
+        </div>
+      </Modal>
+    );
+  };
+
+  // Sidebar / Bottom Nav
+  const NavItem = ({ id, icon, label, isMobile, badge }) => {
+    const isActive = activeTab === id;
+    if (isMobile) {
+      return (
+        <button onClick={() => setActiveTab(id)} className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-all duration-300 relative ${isActive ? 'text-[#F5F5F5]' : 'text-[#8A8A8A] hover:text-[#D1D1D1]'}`}>
+          {isActive && <div className="absolute top-1 w-1 h-1 bg-[#F5F5F5] rounded-full animate-in zoom-in" />}
+          {badge > 0 && <span className="absolute top-1 right-1/3 w-4 h-4 bg-[#FF453A] text-white text-[9px] font-bold rounded-full flex items-center justify-center">{badge}</span>}
+          {React.cloneElement(icon, { className: `w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}` })}
+          <span className={`text-[10px] font-medium transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-70'}`}>{label}</span>
+        </button>
+      );
+    }
+    return (
+      <button onClick={() => setActiveTab(id)} className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 group ${isActive ? 'bg-[#111111] text-[#F5F5F5] font-medium' : 'text-[#8A8A8A] hover:text-[#F5F5F5] hover:bg-[#0A0A0A] active:scale-95'}`}>
+        <div className="flex items-center gap-3">
+          {React.cloneElement(icon, { className: `w-4 h-4 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}` })}
+          <span className="text-sm">{label}</span>
+        </div>
+        {badge > 0 && <span className="bg-[#FF453A] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{badge}</span>}
+      </button>
+    );
+  };
+
+  return (
+    <div className="flex h-[100dvh] w-full bg-[#050505] text-[#F5F5F5] font-sans selection:bg-[#F5F5F5] selection:text-[#050505] overflow-hidden">
+      
+      {/* Sidebar - Desktop */}
+      <aside className="hidden md:flex flex-col w-64 bg-[#050505] border-r border-[#1A1A1A] z-40 relative">
+        <div className="h-20 flex items-center justify-between px-6">
+          <h1 className="text-xl font-bold tracking-widest text-[#F5F5F5]">RAPLY</h1>
+          {unreadNotesCount > 0 && (
+            <span className="bg-[#FF453A] text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">{unreadNotesCount} alert</span>
+          )}
+        </div>
+        <nav className="flex-1 space-y-1 px-4">
+          <NavItem id="home" icon={<LayoutDashboard />} label="Dashboard" />
+          <NavItem id="portfolio" icon={<Wallet />} label="Portfolio" />
+          <NavItem id="wishlist" icon={<Heart />} label="Wishlist" badge={wishlist.filter(w => w.isAffordable).length} />
+          <NavItem id="favorites" icon={<Star />} label="Favorites" />
+          <NavItem id="settings" icon={<SettingsIcon />} label="Settings" />
+        </nav>
+        
+        {/* User Profile Snippet */}
+        <div className="px-4 pb-2 pt-4">
+          <button onClick={() => setActiveTab('settings')} className="w-full p-2 flex items-center gap-3 hover:bg-[#0A0A0A] rounded-xl transition-colors border border-transparent hover:border-[#1A1A1A] active:scale-95 text-left group">
+            <RobloxImage src={profileDisplayImage} type="user" className="w-10 h-10 rounded-full border border-[#1A1A1A] bg-[#111111] group-hover:scale-105 transition-transform" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-[#F5F5F5] truncate">{settings.profile.displayName || 'Profile'}</p>
+              <p className="text-xs text-[#8A8A8A] truncate">{settings.profile.username ? `@${settings.profile.username}` : 'Not set'}</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-[#8A8A8A] opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
+          </button>
+        </div>
+
+        <div className="p-4 border-t border-[#1A1A1A]/50">
+          <button onClick={() => setIsSearchOpen(true)} className="w-full flex items-center gap-3 px-4 py-2.5 bg-[#0A0A0A] hover:bg-[#111111] active:scale-95 border border-[#1A1A1A] rounded-xl text-[#8A8A8A] text-sm transition-all group">
+            <Search className="w-4 h-4 transition-transform group-hover:scale-110" /> 
+            <span>Search</span>
+            <kbd className="ml-auto hidden lg:inline-block text-[10px] bg-[#1A1A1A] px-1.5 py-0.5 rounded text-[#8A8A8A] group-hover:text-[#F5F5F5] transition-colors">Cmd K</kbd>
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 relative flex flex-col h-full overflow-hidden">
+        {/* Mobile Header */}
+        <div className="md:hidden flex items-center justify-between px-4 h-16 border-b border-[#1A1A1A]">
+          <h1 className="text-lg font-bold tracking-widest text-[#F5F5F5]">RAPLY</h1>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setIsSearchOpen(true)} className="p-2 text-[#8A8A8A] hover:text-[#F5F5F5] transition-colors">
+              <Search className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-10 lg:p-12 pb-24 md:pb-12">
+          <div className="max-w-5xl mx-auto h-full">
+            {activeTab === 'home' && renderDashboard()}
+            {activeTab === 'portfolio' && renderPortfolio()}
+            {activeTab === 'wishlist' && renderWishlist()}
+            {activeTab === 'favorites' && renderFavorites()}
+            {activeTab === 'settings' && renderSettings()}
+          </div>
+        </div>
+      </main>
+
+      {/* Bottom Nav - Mobile */}
+      <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#0A0A0A]/90 backdrop-blur-xl border-t border-[#1A1A1A] z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        <div className="flex justify-around items-center h-16 px-2">
+          <NavItem id="home" icon={<LayoutDashboard />} label="Home" isMobile />
+          <NavItem id="portfolio" icon={<Wallet />} label="Portfolio" isMobile />
+          <NavItem id="wishlist" icon={<Heart />} label="Wishlist" isMobile badge={wishlist.filter(w => w.isAffordable).length} />
+          <NavItem id="favorites" icon={<Star />} label="Favorites" isMobile />
+          <NavItem id="settings" icon={<SettingsIcon />} label="Settings" isMobile />
+        </div>
+      </nav>
+
+      {/* Toasts */}
+      <div className="fixed bottom-20 md:bottom-6 right-0 left-0 md:left-auto md:right-6 flex flex-col items-center md:items-end gap-2 z-[60] pointer-events-none px-4 md:px-0">
+        {toasts.map(toast => (
+          <div key={toast.id} className="pointer-events-auto flex items-center gap-3 bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] px-4 py-3 rounded-xl shadow-2xl animate-in slide-in-from-bottom-2 fade-in duration-300">
+            {toast.type === 'error' ? <AlertCircle className="w-4 h-4 text-[#FF453A]" /> : <CheckCircle2 className="w-4 h-4 text-[#30D158]" />}
+            <span className="text-sm font-medium">{toast.message}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Modais */}
+      <AddModal />
+      <AddWishlistModal />
+      <ItemDetailsModal />
+      <WishlistDetailsModal />
+      <SearchModal />
+
+      {/* Global Styles */}
+      <style dangerouslySetInnerHTML={{__html: `
+        :root { color-scheme: dark; }
+        .pb-safe { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #1A1A1A; border-radius: 6px; transition: background-color 0.3s; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #2A2A2A; }
+        input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        @media (prefers-reduced-motion: reduce) {
+          *, ::before, ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+            scroll-behavior: auto !important;
+          }
+        }
+      `}} />
+    </div>
+  );
+}
+
