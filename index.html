@@ -1,24 +1,22 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Raply by Pan</title>
+  <title>Raply By Pan • Ultimate</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
+  <!-- Custom Configuration & Animations for Smoother UI -->
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            background: '#030305',
-            surface: 'rgba(15, 15, 22, 0.65)',
-            border: 'rgba(255, 255, 255, 0.08)',
-            accent: '#6366f1',
-            accentGlow: 'rgba(99, 102, 241, 0.25)'
+            background: '#050505',
+            surface: '#0A0A0A',
+            border: '#1A1A1A'
           },
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
@@ -29,98 +27,89 @@
   </script>
 
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
     
     :root { 
       color-scheme: dark; 
     }
     
     body {
-      background-color: #030305;
-      color: #F8FAFC;
+      background-color: #050505;
+      color: #F5F5F5;
       -webkit-font-smoothing: antialiased;
-      font-family: 'Inter', sans-serif;
-      overflow-x: hidden;
-      background-image: 
-        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 60%);
-      background-attachment: fixed;
     }
 
     .pb-safe { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
     
-    /* Ultra-Smooth Scrollbars */
+    /* Elegant Custom Scrollbar */
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.1); border-radius: 999px; transition: background-color 0.3s; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.25); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #1A1A1A; border-radius: 6px; transition: background-color 0.3s; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: #2A2A2A; }
     
+    /* Remove number input spinners */
     input[type="number"]::-webkit-inner-spin-button, 
     input[type="number"]::-webkit-outer-spin-button { 
       -webkit-appearance: none; margin: 0; 
     }
 
-    /* Glassmorphism Classes */
-    .glass-card {
-      background: rgba(12, 12, 20, 0.6);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-    }
-
-    .glass-card-interactive {
-      background: rgba(15, 15, 26, 0.55);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      transform-style: preserve-3d;
-    }
-
-    .glass-card-interactive:hover {
-      background: rgba(22, 22, 38, 0.75);
-      border-color: rgba(255, 255, 255, 0.18);
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 20px 0 rgba(99, 102, 241, 0.15);
-    }
-
-    .glass-modal {
-      background: rgba(8, 8, 14, 0.88);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-    }
-
-    /* 3D Depth Utilities */
-    .preserve-3d { transform-style: preserve-3d; }
-    .translate-z-10 { transform: translateZ(10px); }
-    .translate-z-20 { transform: translateZ(20px); }
-
-    /* Custom Animations */
+    /* ULTRA-SMOOTH ANIMATIONS
+      Engineered custom keyframes to replace tailwindcss-animate plugin 
+      with premium cubic-bezier easing for a buttery smooth feel.
+    */
     .animate-in {
-      animation-duration: 0.5s;
+      animation-duration: 0.6s;
       animation-fill-mode: both;
       animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     }
     
     .fade-in { animation-name: fadeIn; }
     .slide-in-from-bottom-4 { animation-name: slideInBottom4; }
-    .slide-in-from-bottom-8 { animation-name: slideInBottom8; }
+    .slide-in-from-bottom-6 { animation-name: slideInBottom6; }
+    .slide-in-from-bottom-12 { animation-name: slideInBottom12; }
     .slide-in-from-bottom-full { animation-name: slideInBottomFull; }
     .slide-in-from-top-2 { animation-name: slideInTop2; }
     .slide-in-from-right-4 { animation-name: slideInRight4; }
+    .slide-in-from-right-8 { animation-name: slideInRight8; }
     .zoom-in-95 { animation-name: zoomIn95; }
-    .pulse-glow { animation: pulseGlow 3s infinite ease-in-out; }
+    .fill-mode-backwards { animation-fill-mode: backwards; }
 
-    @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
-    @keyframes slideInBottom4 { 0% { opacity: 0; transform: translateY(16px); } 100% { opacity: 1; transform: translateY(0); } }
-    @keyframes slideInBottom8 { 0% { opacity: 0; transform: translateY(32px); } 100% { opacity: 1; transform: translateY(0); } }
-    @keyframes slideInBottomFull { 0% { opacity: 0; transform: translateY(100%); } 100% { opacity: 1; transform: translateY(0); } }
-    @keyframes slideInTop2 { 0% { opacity: 0; transform: translateY(-8px); } 100% { opacity: 1; transform: translateY(0); } }
-    @keyframes slideInRight4 { 0% { opacity: 0; transform: translateX(16px); } 100% { opacity: 1; transform: translateX(0); } }
-    @keyframes zoomIn95 { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
-    @keyframes pulseGlow { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    @keyframes slideInBottom4 {
+      0% { opacity: 0; transform: translateY(16px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInBottom6 {
+      0% { opacity: 0; transform: translateY(24px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInBottom12 {
+      0% { opacity: 0; transform: translateY(48px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInBottomFull {
+      0% { opacity: 0; transform: translateY(100%); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInTop2 {
+      0% { opacity: 0; transform: translateY(-8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideInRight4 {
+      0% { opacity: 0; transform: translateX(16px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideInRight8 {
+      0% { opacity: 0; transform: translateX(32px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes zoomIn95 {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
 
     @media (prefers-reduced-motion: reduce) {
       *, ::before, ::after {
@@ -132,31 +121,26 @@
     }
   </style>
 
-  <!-- Firebase Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js" type="module"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js" type="module"></script>
-
   <!-- ES Module Import Map for Browser React -->
   <script type="importmap">
     {
       "imports": {
         "react": "https://esm.sh/react@18.2.0",
         "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
-        "lucide-react": "https://esm.sh/lucide-react@0.292.0?deps=react@18.2.0",
-        "firebase/app": "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js",
-        "firebase/auth": "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js",
-        "firebase/firestore": "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"
+        "lucide-react": "https://esm.sh/lucide-react@0.292.0?deps=react@18.2.0"
       }
     }
   </script>
   
+  <!-- Babel Standalone to compile JSX in the browser -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
   
+  <!-- App Mount Point -->
   <div id="root"></div>
 
+  <!-- React Application Logic -->
   <script type="text/babel" data-type="module">
     import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
     import { createRoot } from 'react-dom/client';
@@ -165,34 +149,30 @@
       Trash2, X, Download, Upload, Star, Clock, 
       Settings as SettingsIcon, LayoutDashboard, Wallet,
       ChevronRight, Activity, AlertCircle, CheckCircle2,
-      User, Box, Heart, Bell, Check, Share, Smartphone, Sparkles,
-      Cloud, CloudOff, Info, ArrowUpRight, ArrowDownRight, Smartphone as PhoneIcon
+      User, Image as ImageIcon, Box, Heart, Bell, Check, Edit3, ExternalLink,
+      ShieldCheck, PieChart, Sparkles, Layers, ArrowUpRight, ArrowDownRight
     } from 'lucide-react';
 
-    import { initializeApp } from 'firebase/app';
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
-    import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from 'firebase/firestore';
-
     // ==========================================
-    // FIREBASE INITIALIZATION PERSISTENCE
+    // CACHE & STORAGE
     // ==========================================
-    const firebaseConfig = typeof __firebase_config !== 'undefined' 
-      ? JSON.parse(__firebase_config)
-      : {
-          apiKey: "demo-key",
-          authDomain: "demo.firebaseapp.com",
-          projectId: "demo-project",
-          storageBucket: "demo.appspot.com",
-          messagingSenderId: "123456789",
-          appId: "1:123456789:web:abcdef"
-        };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'raply-by-pan';
+    const apiCache = {
+      store: new Map(),
+      set(key, data, ttlSeconds = 60) {
+        this.store.set(key, { data, expiry: Date.now() + ttlSeconds * 1000 });
+      },
+      get(key) {
+        const item = this.store.get(key);
+        if (!item) return null;
+        if (Date.now() > item.expiry) {
+          this.store.delete(key);
+          return null;
+        }
+        return item.data;
+      }
+    };
 
-    // Helper functions for normalization
     const formatRobux = (value, format = 'suffix') => {
       const num = Math.round(Number(value) || 0);
       const formatted = new Intl.NumberFormat('en-US').format(num);
@@ -229,6 +209,7 @@
       targetPrice: Math.max(0, Number(item.targetPrice) || 0),
       availableRobux: Math.max(0, Number(item.availableRobux) || 0),
       isAffordable: Boolean(item.isAffordable),
+      viewed: Boolean(item.viewed),
       createdAt: item.createdAt || new Date().toISOString()
     });
 
@@ -236,6 +217,7 @@
       autoRefresh: settings?.autoRefresh !== undefined ? Boolean(settings.autoRefresh) : true,
       refreshInterval: Number(settings?.refreshInterval) || 60,
       currencyFormat: settings?.currencyFormat === 'prefix' ? 'prefix' : 'suffix',
+      theme: 'dark',
       profile: {
         username: String(settings?.profile?.username || ''),
         userId: String(settings?.profile?.userId || ''),
@@ -246,22 +228,49 @@
       }
     });
 
-    // Cache System
-    const apiCache = {
-      store: new Map(),
-      set(key, data, ttlSeconds = 60) {
-        this.store.set(key, { data, expiry: Date.now() + ttlSeconds * 1000 });
+    const storage = {
+      getItems: () => {
+        try {
+          const data = localStorage.getItem('raply_ultimate_items');
+          return data ? JSON.parse(data).map(normalizeItem) : [];
+        } catch (e) { return []; }
       },
-      get(key) {
-        const item = this.store.get(key);
-        if (!item || Date.now() > item.expiry) return null;
-        return item.data;
+      saveItems: (items) => {
+        try { localStorage.setItem('raply_ultimate_items', JSON.stringify(items)); } catch (e) {}
+      },
+      getWishlist: () => {
+        try {
+          const data = localStorage.getItem('raply_ultimate_wishlist');
+          return data ? JSON.parse(data).map(normalizeWishlistItem) : [];
+        } catch (e) { return []; }
+      },
+      saveWishlist: (wishlist) => {
+        try { localStorage.setItem('raply_ultimate_wishlist', JSON.stringify(wishlist)); } catch (e) {}
+      },
+      getNotifications: () => {
+        try {
+          const data = localStorage.getItem('raply_ultimate_notifications');
+          return data ? JSON.parse(data) : [];
+        } catch (e) { return []; }
+      },
+      saveNotifications: (notes) => {
+        try { localStorage.setItem('raply_ultimate_notifications', JSON.stringify(notes)); } catch (e) {}
+      },
+      getSettings: () => {
+        try {
+          const data = localStorage.getItem('raply_ultimate_settings');
+          return normalizeSettings(data ? JSON.parse(data) : {});
+        } catch (e) { return normalizeSettings({}); }
+      },
+      saveSettings: (settings) => {
+        try { localStorage.setItem('raply_ultimate_settings', JSON.stringify(normalizeSettings(settings))); } catch (e) {}
       }
     };
 
     // ==========================================
-    // ROBLOX API LAYER (Enhanced Fallbacks for Public Inventory)
+    // ROBLOX API LAYER
     // ==========================================
+
     const RobloxAPI = {
       endpoints: {
         info: (id) => `https://economy.roproxy.com/v2/assets/${id}/details`,
@@ -433,16 +442,9 @@
       async fetchUserInventory(userId) {
         try {
           const res = await fetch(this.endpoints.userInventory(userId));
-          if (!res.ok) {
-            if (res.status === 403) {
-              throw new Error("Your Roblox Inventory privacy setting is set to Private. Please go to Roblox Settings -> Privacy -> 'Who can see my inventory?' and set it to Everyone.");
-            }
-            throw new Error("Failed to reach Roblox API proxy.");
-          }
+          if (!res.ok) throw new Error('Failed to fetch inventory');
           const data = await res.json();
-          if (!data || !data.data || data.data.length === 0) {
-            return [];
-          }
+          if (!data.data) return [];
           
           const itemsMap = new Map();
           for (const raw of data.data) {
@@ -468,54 +470,21 @@
           }
           return Array.from(itemsMap.values());
         } catch (e) {
-          throw new Error(e.message || 'Could not load inventory automatically.');
+          throw new Error('Could not load inventory automatically (Profile might be private).');
         }
       }
     };
 
-    // 3D Glass Card Container Component
-    const GlassCard3D = ({ children, className = "", onClick }) => {
-      const cardRef = useRef(null);
-      const [transform, setTransform] = useState("perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
-
-      const handleMouseMove = (e) => {
-        if (!cardRef.current) return;
-        const rect = cardRef.current.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        const centerX = rect.width / 2;
-        const centerY = rect.height / 2;
-        
-        const rotateX = ((y - centerY) / centerY) * -8;
-        const rotateY = ((x - centerX) / centerX) * 8;
-
-        setTransform(`perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`);
-      };
-
-      const handleMouseLeave = () => {
-        setTransform("perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)");
-      };
-
-      return (
-        <div 
-          ref={cardRef}
-          onClick={onClick}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          style={{ transform, transition: 'transform 0.15s ease-out' }}
-          className={`glass-card-interactive rounded-3xl p-6 cursor-pointer preserve-3d ${className}`}
-        >
-          {children}
-        </div>
-      );
-    };
+    // ==========================================
+    // UI COMPONENTS
+    // ==========================================
 
     const AnimatedNumber = ({ value, formatFn, className }) => {
       const [displayValue, setDisplayValue] = useState(value);
       
       useEffect(() => {
         if (displayValue === value) return;
-        const duration = 600;
+        const duration = 500;
         const start = displayValue;
         const end = value;
         const startTime = performance.now();
@@ -543,16 +512,16 @@
       useEffect(() => { setHasError(false); setIsLoaded(false); }, [src]);
 
       return (
-        <div className={`relative overflow-hidden flex items-center justify-center bg-[#080810] transition-all duration-300 ${className}`}>
-          {(!isLoaded && !hasError) && <div className="absolute inset-0 bg-[#121220] animate-pulse" />}
+        <div className={`relative overflow-hidden flex items-center justify-center bg-[#050505] transition-all duration-300 ${className}`}>
+          {(!isLoaded && !hasError) && <div className="absolute inset-0 bg-[#111111] animate-pulse" />}
           {hasError || !src ? (
-            type === 'user' ? <User className="w-1/2 h-1/2 text-white/20" /> : <Box className="w-1/2 h-1/2 text-white/20" />
+            type === 'user' ? <User className="w-1/2 h-1/2 text-[#2A2A2A]" /> : <Box className="w-1/2 h-1/2 text-[#2A2A2A]" />
           ) : (
             <img 
               src={src} alt={alt || ''}
               onLoad={() => setIsLoaded(true)}
               onError={() => setHasError(true)}
-              className={`w-full h-full object-contain transition-all duration-500 ease-out ${isLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} 
+              className={`w-full h-full object-contain transition-opacity duration-500 ease-out ${isLoaded ? 'opacity-100' : 'opacity-0'}`} 
               loading="lazy"
             />
           )}
@@ -561,7 +530,7 @@
     };
 
     const SmoothSparkline = ({ data, isPositive }) => {
-      if (!data || data.length < 2) return <div className="h-full w-full flex items-center justify-center text-white/40 text-xs font-medium">Price history compiling...</div>;
+      if (!data || data.length < 2) return <div className="h-full w-full flex items-center justify-center text-[#8A8A8A] text-xs font-medium">Price history unavailable</div>;
       
       const min = Math.min(...data);
       const max = Math.max(...data);
@@ -582,18 +551,18 @@
         return `${acc} C ${cp1x},${prev.y} ${cp2x},${point.y} ${point.x},${point.y}`;
       }, '');
 
-      const color = isPositive ? '#10B981' : '#EF4444';
+      const color = isPositive ? '#30D158' : '#FF453A';
 
       return (
         <svg className="w-full h-full overflow-visible animate-in fade-in duration-700" viewBox="0 0 100 100" preserveAspectRatio="none">
           <defs>
             <linearGradient id={`grad-${isPositive ? 'pos' : 'neg'}`} x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+              <stop offset="0%" stopColor={color} stopOpacity="0.25" />
               <stop offset="100%" stopColor={color} stopOpacity="0" />
             </linearGradient>
           </defs>
           <path d={`${pathD} L 100,100 L 0,100 Z`} fill={`url(#grad-${isPositive ? 'pos' : 'neg'})`} />
-          <path d={pathD} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+          <path d={pathD} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-95 drop-shadow-md" />
         </svg>
       );
     };
@@ -604,19 +573,19 @@
       return (
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
           <div 
-            className="absolute inset-0 bg-black/80 backdrop-blur-xl animate-in fade-in duration-300 ease-out" 
+            className="absolute inset-0 bg-black/75 backdrop-blur-md animate-in fade-in duration-300 ease-out" 
             onClick={onClose} 
           />
-          <div className={`relative glass-modal w-full ${maxWidth} max-h-[90vh] rounded-t-[32px] md:rounded-3xl flex flex-col shadow-2xl
-            animate-in slide-in-from-bottom-full md:slide-in-from-bottom-8 md:zoom-in-95 duration-400 ease-out overflow-hidden`}>
+          <div className={`relative bg-[#0A0A0A] md:border md:border-[#1A1A1A] w-full ${maxWidth} max-h-[90vh] rounded-t-[32px] md:rounded-3xl flex flex-col shadow-2xl
+            animate-in slide-in-from-bottom-full md:slide-in-from-bottom-12 md:zoom-in-95 duration-400 ease-out overflow-hidden`}>
             
             <div className="md:hidden w-full flex justify-center pt-4 pb-2" onClick={onClose}>
-              <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+              <div className="w-12 h-1.5 bg-[#2A2A2A] rounded-full" />
             </div>
 
-            <div className="flex justify-between items-center px-6 py-5 border-b border-white/10">
-              <h3 className="text-xl font-bold text-white tracking-tight">{title}</h3>
-              <button onClick={onClose} className="p-2 -mr-2 text-white/60 hover:text-white transition-colors rounded-full hover:bg-white/10 active:scale-95">
+            <div className="flex justify-between items-center px-6 py-5 border-b border-[#1A1A1A]">
+              <h3 className="text-xl font-bold text-[#F5F5F5] tracking-tight">{title}</h3>
+              <button onClick={onClose} className="p-2 -mr-2 text-[#8A8A8A] hover:text-[#F5F5F5] transition-colors rounded-full hover:bg-[#111111] hover:scale-105 active:scale-95">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -629,113 +598,69 @@
       );
     };
 
+
     // ==========================================
-    // MAIN APP COMPONENT WITH FIREBASE PERSISTENCE
+    // MAIN APP COMPONENT
     // ==========================================
-    export default function App() {
-      const [user, setUser] = useState(null);
+
+    function App() {
       const [items, setItems] = useState([]);
       const [wishlist, setWishlist] = useState([]);
       const [notifications, setNotifications] = useState([]);
       const [settings, setSettings] = useState(normalizeSettings({}));
       const [activeTab, setActiveTab] = useState('home');
       const [isOnline, setIsOnline] = useState(navigator.onLine);
+      const [lastUpdate, setLastUpdate] = useState(Date.now());
       const [apiStatus, setApiStatus] = useState('Connected'); 
       const [isSyncingInventory, setIsSyncingInventory] = useState(false);
       
       const [isAddOpen, setIsAddOpen] = useState(false);
       const [isWishlistAddOpen, setIsWishlistAddOpen] = useState(false);
       const [isSearchOpen, setIsSearchOpen] = useState(false);
-      const [isPwaTutorialOpen, setIsPwaTutorialOpen] = useState(false);
-      const [showPwaBanner, setShowPwaBanner] = useState(false);
       const [selectedItem, setSelectedItem] = useState(null);
       const [selectedWishlistItem, setSelectedWishlistItem] = useState(null);
       const [toasts, setToasts] = useState([]);
       const [isUpdating, setIsUpdating] = useState(false);
       const [searchQuery, setSearchQuery] = useState('');
 
-      // (1) Firebase Auth initialization
+      // Initialization
       useEffect(() => {
-        const initAuth = async () => {
-          try {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-              await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-              await signInAnonymously(auth);
-            }
-          } catch (e) {
-            console.error("Auth init error:", e);
-          }
-        };
-        initAuth();
-        const unsubscribe = onAuthStateChanged(auth, setUser);
-        return () => unsubscribe();
-      }, []);
+        setItems(storage.getItems());
+        setWishlist(storage.getWishlist());
+        setNotifications(storage.getNotifications());
+        setSettings(storage.getSettings());
 
-      // (2) Firestore Realtime Subscription (Data Persists Across App Updates)
-      useEffect(() => {
-        if (!user) return;
-
-        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'userData', 'mainDoc');
-
-        const unsubscribe = onSnapshot(docRef, (docSnap) => {
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            if (data.items) setItems(data.items.map(normalizeItem));
-            if (data.wishlist) setWishlist(data.wishlist.map(normalizeWishlistItem));
-            if (data.notifications) setNotifications(data.notifications);
-            if (data.settings) setSettings(normalizeSettings(data.settings));
-          } else {
-            // Push current local default state to firestore if first load
-            setDoc(docRef, {
-              items: [],
-              wishlist: [],
-              notifications: [],
-              settings: normalizeSettings({})
-            }).catch(err => console.error(err));
-          }
-        }, (err) => {
-          console.error("Firestore sync error:", err);
-        });
-
-        return () => unsubscribe();
-      }, [user]);
-
-      // Save helper to push to Firestore
-      const persistDataToCloud = useCallback(async (updatedItems, updatedWishlist, updatedNotifications, updatedSettings) => {
-        if (!user) return;
-        const docRef = doc(db, 'artifacts', appId, 'users', user.uid, 'userData', 'mainDoc');
-        try {
-          await setDoc(docRef, {
-            items: updatedItems || items,
-            wishlist: updatedWishlist || wishlist,
-            notifications: updatedNotifications || notifications,
-            settings: updatedSettings || settings,
-            lastSaved: new Date().toISOString()
-          }, { merge: true });
-        } catch (e) {
-          console.error("Failed to save state to Firestore:", e);
-        }
-      }, [user, items, wishlist, notifications, settings]);
-
-      // Network and PWA Detection
-      useEffect(() => {
         const handleOnline = () => { setIsOnline(true); setApiStatus('Connected'); };
         const handleOffline = () => { setIsOnline(false); setApiStatus('Offline'); };
         window.addEventListener('online', handleOnline);
         window.addEventListener('offline', handleOffline);
-
-        // Check if standalone PWA or standard browser
-        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-        if (!isStandalone) {
-          setShowPwaBanner(true);
-        }
-
         return () => {
           window.removeEventListener('online', handleOnline);
           window.removeEventListener('offline', handleOffline);
         };
       }, []);
+
+      useEffect(() => { storage.saveItems(items); }, [items]);
+      useEffect(() => { storage.saveWishlist(wishlist); }, [wishlist]);
+      useEffect(() => { storage.saveNotifications(notifications); }, [notifications]);
+      useEffect(() => { storage.saveSettings(settings); }, [settings]);
+
+      // Wishlist Price Alerts
+      useEffect(() => {
+        if (wishlist.length === 0) return;
+        let updated = false;
+        const newWishlist = wishlist.map(w => {
+          const isAffordable = w.currentPrice <= w.availableRobux;
+          if (isAffordable && !w.isAffordable) {
+            updated = true;
+            const noteMsg = `Price Alert: ${w.name} is now within budget (${formatRobux(w.currentPrice, settings.currencyFormat)})!`;
+            setNotifications(prev => [{ id: Date.now() + Math.random(), message: noteMsg, viewed: false, time: new Date().toISOString() }, ...prev]);
+            showToast(`Price Alert: ${w.name} is affordable!`, 'success');
+          }
+          return { ...w, isAffordable };
+        });
+        if (updated) setWishlist(newWishlist);
+      }, [items, wishlist, settings.currencyFormat]);
 
       const showToast = useCallback((message, type = 'success') => {
         const id = Date.now();
@@ -743,13 +668,27 @@
         setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
       }, []);
 
-      // Auto Market Refresh + Live Price Rise/Drop Notifications
+      // Hotkeys
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+            e.preventDefault();
+            setIsSearchOpen(true);
+          }
+          if (e.key === 'Escape') {
+            setIsSearchOpen(false); setIsAddOpen(false); setIsWishlistAddOpen(false); setSelectedItem(null); setSelectedWishlistItem(null);
+          }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+      }, []);
+
+      // Auto-Refresh
       const refreshMarketData = useCallback(async () => {
         if ((items.length === 0 && wishlist.length === 0) || isUpdating || !isOnline) return;
         setIsUpdating(true);
         setApiStatus('Updating');
         let updatedCount = 0;
-        let newNotes = [...notifications];
         
         try {
           const newItems = [...items];
@@ -757,22 +696,7 @@
             const item = newItems[i];
             try {
               const fresh = await RobloxAPI.getAsset(item.assetId);
-              if (fresh.currentPrice !== item.currentPrice) {
-                const diff = fresh.currentPrice - item.currentPrice;
-                const isDrop = diff < 0;
-                
-                // Trigger notification for price change
-                const note = {
-                  id: Date.now() + Math.random(),
-                  title: isDrop ? `Price Drop Alert: ${item.name}` : `Price Spike Alert: ${item.name}`,
-                  message: `${item.name} has ${isDrop ? 'dropped' : 'risen'} to ${formatRobux(fresh.currentPrice, settings.currencyFormat)} (${isDrop ? '' : '+'}${formatRobux(diff, settings.currencyFormat)})`,
-                  type: isDrop ? 'drop' : 'rise',
-                  time: new Date().toISOString()
-                };
-
-                newNotes.unshift(note);
-                showToast(note.message, isDrop ? 'success' : 'error');
-
+              if (fresh.currentPrice !== item.currentPrice || fresh.rap !== item.rap) {
                 const newHistory = item.isLimited ? [...item.history, fresh.currentPrice] : [];
                 if (newHistory.length > 30) newHistory.shift();
                 newItems[i] = { ...item, ...fresh, history: newHistory, lastUpdated: new Date().toISOString() };
@@ -781,19 +705,30 @@
             } catch (err) {}
             await new Promise(r => setTimeout(r, 150));
           }
+          setItems(newItems);
 
-          if (updatedCount > 0) {
-            setItems(newItems);
-            setNotifications(newNotes);
-            persistDataToCloud(newItems, wishlist, newNotes, settings);
+          const newWish = [...wishlist];
+          for (let i = 0; i < newWish.length; i++) {
+            const w = newWish[i];
+            try {
+              const fresh = await RobloxAPI.getAsset(w.assetId);
+              if (fresh.currentPrice !== w.currentPrice) {
+                newWish[i] = { ...w, currentPrice: fresh.currentPrice, lastChecked: new Date().toISOString() };
+                updatedCount++;
+              }
+            } catch (err) {}
+            await new Promise(r => setTimeout(r, 150));
           }
+          setWishlist(newWish);
+
+          if (updatedCount > 0) setLastUpdate(Date.now());
           setApiStatus('Connected');
         } catch (e) {
-          setApiStatus('API Busy');
+          setApiStatus('API Unavailable');
         } finally {
           setIsUpdating(false);
         }
-      }, [items, wishlist, notifications, settings, isUpdating, isOnline, persistDataToCloud]);
+      }, [items, wishlist, isUpdating, isOnline]);
 
       useEffect(() => {
         let interval;
@@ -819,6 +754,7 @@
             return;
           }
 
+          // Enrich thumbnails
           const enriched = [];
           for (const inv of invItems) {
             const thumb = await RobloxAPI.getAssetThumbnail(inv.assetId);
@@ -831,7 +767,6 @@
           }
 
           setItems(enriched);
-          persistDataToCloud(enriched, wishlist, notifications, settings);
           showToast(`Successfully synced ${enriched.length} items from Roblox!`);
         } catch (e) {
           showToast(e.message || "Failed to sync inventory", "error");
@@ -840,7 +775,7 @@
         }
       };
 
-      // Statistics
+      // Portfolio Statistics
       const stats = useMemo(() => {
         let totalValue = 0, totalInvested = 0, limitedsCount = 0;
         items.forEach(item => {
@@ -869,121 +804,110 @@
         return '';
       }, [settings.profile]);
 
+      const unreadNotesCount = useMemo(() => notifications.filter(n => !n.viewed).length, [notifications]);
+
+
       // ==========================================
       // VIEW RENDERERS
       // ==========================================
 
       const renderDashboard = () => (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out fill-mode-backwards">
           
-          {/* Top Welcome Bar */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] font-black bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-indigo-500/20 flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 animate-spin" /> RAPLY BY PAN
-                </span>
-                {user && (
-                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                    <Cloud className="w-3 h-3" /> Cloud Synced
-                  </span>
-                )}
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-black bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-2.5 py-0.5 rounded-full uppercase tracking-widest shadow-md">RAPLY BY PAN • ULTIMATE</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight leading-none">
-                Roblox Portfolio <br className="sm:hidden" />Analytics
-              </h2>
-              <div className="flex items-center gap-2 text-xs text-white/50 font-medium mt-2">
+              <h2 className="text-3xl font-black text-[#F5F5F5] tracking-tight">Your Roblox Wealth, <br className="sm:hidden" />Optimized & Live.</h2>
+              <div className="flex items-center gap-2 text-xs text-[#8A8A8A] font-medium mt-1">
                 {!isOnline ? (
-                  <><Activity className="w-3.5 h-3.5 text-rose-500" /><span className="text-rose-400">Offline</span></>
+                  <><Activity className="w-3.5 h-3.5 text-[#FF453A]" /><span className="text-[#FF453A]">Offline</span></>
                 ) : isUpdating ? (
-                  <><RefreshCw className="w-3.5 h-3.5 animate-spin text-emerald-400" /><span className="text-emerald-400">Syncing Market...</span></>
+                  <><RefreshCw className="w-3.5 h-3.5 animate-spin text-[#30D158]" /><span className="text-[#30D158]">Syncing Market...</span></>
                 ) : (
-                  <><Clock className="w-3.5 h-3.5 text-indigo-400" /><span>API Status: <strong className="text-white">{apiStatus}</strong></span></>
+                  <><Clock className="w-3.5 h-3.5" /><span>API Status: <strong className="text-[#F5F5F5]">{apiStatus}</strong></span></>
                 )}
               </div>
             </div>
             
             <div className="flex gap-2 w-full sm:w-auto">
-              <button onClick={syncRobloxInventory} disabled={isSyncingInventory || !isOnline} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3.5 glass-card hover:bg-white/10 active:scale-95 text-white rounded-2xl transition-all font-bold text-sm shadow-xl disabled:opacity-50">
-                <RefreshCw className={`w-4 h-4 text-emerald-400 ${isSyncingInventory ? 'animate-spin' : ''}`} /> Sync Roblox
+              <button onClick={syncRobloxInventory} disabled={isSyncingInventory || !isOnline} className="flex items-center justify-center gap-2 px-4 py-3 bg-[#111111] hover:bg-[#1A1A1A] active:scale-95 text-[#F5F5F5] rounded-xl border border-[#1A1A1A] transition-all font-bold text-sm shadow-sm disabled:opacity-50">
+                <RefreshCw className={`w-4 h-4 text-[#30D158] ${isSyncingInventory ? 'animate-spin' : ''}`} /> Sync Roblox
               </button>
-              <button onClick={() => setIsAddOpen(true)} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 active:scale-95 text-white rounded-2xl font-bold transition-all shadow-lg shadow-indigo-500/30 text-sm">
+              <button onClick={() => setIsAddOpen(true)} className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-[#F5F5F5] text-[#050505] hover:bg-white active:scale-95 rounded-xl font-bold transition-all shadow-md text-sm">
                 <Plus className="w-4 h-4" /> Add Asset
               </button>
             </div>
           </div>
 
-          {/* Quick Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-            <div className="glass-card rounded-2xl p-4 flex flex-col justify-between">
-              <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">Total Holdings</p>
-              <p className="text-2xl font-black text-white mt-1">{stats.totalAssets}</p>
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-4 flex flex-col justify-between hover:border-[#2A2A2A] transition-colors">
+              <p className="text-[10px] text-[#8A8A8A] uppercase font-bold tracking-wider">Total Assets</p>
+              <p className="text-2xl font-black text-[#F5F5F5] mt-1">{stats.totalAssets}</p>
             </div>
-            <div className="glass-card rounded-2xl p-4 flex flex-col justify-between">
-              <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">Limiteds</p>
-              <p className="text-2xl font-black text-white mt-1">{stats.limitedsCount}</p>
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-4 flex flex-col justify-between hover:border-[#2A2A2A] transition-colors">
+              <p className="text-[10px] text-[#8A8A8A] uppercase font-bold tracking-wider">Limiteds</p>
+              <p className="text-2xl font-black text-[#F5F5F5] mt-1">{stats.limitedsCount}</p>
             </div>
-            <div className="glass-card rounded-2xl p-4 flex flex-col justify-between">
-              <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">Wishlist Items</p>
-              <p className="text-2xl font-black text-white mt-1">{stats.wishlistCount}</p>
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-4 flex flex-col justify-between hover:border-[#2A2A2A] transition-colors">
+              <p className="text-[10px] text-[#8A8A8A] uppercase font-bold tracking-wider">Wishlist</p>
+              <p className="text-2xl font-black text-[#F5F5F5] mt-1">{stats.wishlistCount}</p>
             </div>
-            <div className="col-span-2 md:col-span-3 glass-card rounded-2xl p-4 flex flex-col justify-between bg-gradient-to-r from-indigo-950/30 to-purple-950/30 border-indigo-500/20">
-              <p className="text-[10px] text-indigo-300 uppercase font-bold tracking-wider">Net Portfolio Worth</p>
-              <p className="text-2xl font-black text-white mt-1">
+            <div className="col-span-2 md:col-span-3 bg-[#0A0A0A] border border-[#1A1A1A] rounded-2xl p-4 flex flex-col justify-between hover:border-[#2A2A2A] transition-colors">
+              <p className="text-[10px] text-[#8A8A8A] uppercase font-bold tracking-wider">Net Portfolio Worth</p>
+              <p className="text-2xl font-black text-[#F5F5F5] mt-1">
                 <AnimatedNumber value={stats.totalValue} formatFn={(v) => formatRobux(v, settings.currencyFormat)} />
               </p>
             </div>
           </div>
 
-          {/* Featured Glass Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-            <GlassCard3D className="lg:col-span-2 relative overflow-hidden group">
-              <div className="z-10 relative">
-                <p className="text-white/60 text-sm font-semibold mb-2 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-indigo-400" /> Overall Profit & Loss
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 bg-gradient-to-br from-[#0A0A0A] via-[#0D0D0D] to-[#050505] border border-[#1A1A1A] rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden group hover:border-[#2A2A2A] transition-colors shadow-2xl">
+              <div className="z-10">
+                <p className="text-[#8A8A8A] text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-400" /> Overall Profit & Loss
                 </p>
-                <div className={`text-4xl md:text-5xl font-black tracking-tight mb-4 flex items-center gap-2 ${stats.isProfitable ? 'text-emerald-400' : 'text-rose-400'}`}>
+                <div className={`text-4xl md:text-5xl font-black tracking-tight mb-3 flex items-center gap-2 ${stats.isProfitable ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
                   {stats.profit > 0 ? '+' : ''}<AnimatedNumber value={stats.profit} formatFn={(v) => formatRobux(v, settings.currencyFormat)} />
                 </div>
-                <div className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-bold backdrop-blur-md border ${stats.isProfitable ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'}`}>
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-bold backdrop-blur-sm ${stats.isProfitable ? 'bg-[#30D158]/10 text-[#30D158]' : 'bg-[#FF453A]/10 text-[#FF453A]'}`}>
                   {stats.isProfitable ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
                   {stats.roi.toFixed(2)}% ROI ({formatRobux(stats.totalInvested, settings.currencyFormat)} invested)
                 </div>
               </div>
-              <div className="absolute -right-10 -bottom-10 opacity-10 w-64 h-64 pointer-events-none transform group-hover:scale-110 group-hover:-rotate-12 transition-all duration-700 ease-out">
-                <TrendingUp className="w-full h-full text-indigo-400" />
+              <div className="absolute -right-10 -bottom-10 opacity-[0.03] w-64 h-64 pointer-events-none transform group-hover:scale-110 group-hover:-rotate-12 transition-all duration-700 ease-out">
+                <TrendingUp className="w-full h-full text-white" />
               </div>
-            </GlassCard3D>
+            </div>
 
-            <div className="glass-card rounded-3xl p-6 flex flex-col justify-between">
+            <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-3xl p-5 flex flex-col justify-between hover:border-[#2A2A2A] transition-colors shadow-xl">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <Heart className="w-4 h-4 text-pink-400" /> Wishlist Tracker
-                </h3>
-                <button onClick={() => setActiveTab('wishlist')} className="text-xs font-bold text-white/60 hover:text-white transition-colors bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">View All</button>
+                <h3 className="text-base font-bold text-[#F5F5F5]">Wishlist Watch</h3>
+                <button onClick={() => setActiveTab('wishlist')} className="text-xs font-bold text-[#8A8A8A] hover:text-[#F5F5F5] transition-colors bg-[#111111] px-3 py-1.5 rounded-lg border border-[#1A1A1A]">View All</button>
               </div>
               {wishlist.length === 0 ? (
-                <div className="flex-1 flex flex-col items-center justify-center py-6 text-center">
-                   <Heart className="w-8 h-8 text-white/10 mb-2" />
-                   <p className="text-xs font-semibold text-white/40">No wishlist items tracked.</p>
+                <div className="flex-1 flex flex-col items-center justify-center py-6">
+                   <Heart className="w-8 h-8 text-[#1A1A1A] mb-2" />
+                   <p className="text-xs font-semibold text-[#8A8A8A]">No items tracked.</p>
                 </div>
               ) : (
-                <div className="space-y-2.5">
-                  {wishlist.slice(0, 3).map((w) => {
+                <div className="space-y-2">
+                  {wishlist.slice(0, 3).map((w, index) => {
                     const diff = w.targetPrice - w.availableRobux;
                     return (
-                      <div key={w.id} onClick={() => setSelectedWishlistItem(w)} className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 cursor-pointer transition-all flex items-center justify-between">
+                      <div key={w.id} onClick={() => setSelectedWishlistItem(w)} className="p-3 bg-[#111111] hover:bg-[#1A1A1A] rounded-xl border border-[#1A1A1A] cursor-pointer transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-between animate-in fade-in slide-in-from-right-4" style={{ animationDelay: `${index * 100}ms`}}>
                         <div className="flex items-center gap-3 min-w-0">
-                          <RobloxImage src={w.imageUrl} className="w-10 h-10 rounded-xl border border-white/10" />
+                          <RobloxImage src={w.imageUrl} className="w-10 h-10 rounded-lg border border-[#1A1A1A] bg-[#050505]" />
                           <div className="min-w-0">
-                            <p className="text-sm font-bold text-white truncate">{w.name}</p>
-                            <p className="text-xs text-white/50 mt-0.5">{formatRobux(w.currentPrice, settings.currencyFormat)}</p>
+                            <p className="text-sm font-bold text-[#F5F5F5] truncate">{w.name}</p>
+                            <p className="text-xs text-[#8A8A8A] mt-0.5 font-medium">{formatRobux(w.currentPrice, settings.currencyFormat)}</p>
                           </div>
                         </div>
                         {w.isAffordable ? (
-                          <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">READY</span>
+                          <span className="text-[10px] font-black text-[#30D158] bg-[#30D158]/10 px-2.5 py-1 rounded shadow-sm">REACHED</span>
                         ) : (
-                          <span className="text-[10px] text-white/40 font-bold">+{formatRobux(Math.max(0, diff), settings.currencyFormat)}</span>
+                          <span className="text-[10px] text-[#8A8A8A] font-bold">+{formatRobux(Math.max(0, diff), settings.currencyFormat)}</span>
                         )}
                       </div>
                     );
@@ -993,19 +917,18 @@
             </div>
           </div>
 
-          {/* Holdings List */}
           {items.length === 0 ? (
-            <div className="py-20 flex flex-col items-center justify-center text-center glass-card rounded-3xl p-8">
-              <div className="w-20 h-20 bg-indigo-500/10 border border-indigo-500/20 rounded-full flex items-center justify-center mb-5">
-                <Wallet className="w-8 h-8 text-indigo-400" />
+            <div className="py-20 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-700 ease-out">
+              <div className="w-20 h-20 bg-[#111111] rounded-full flex items-center justify-center mb-5 border border-[#1A1A1A] shadow-lg">
+                <Wallet className="w-8 h-8 text-[#8A8A8A]" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Your portfolio is empty</h3>
-              <p className="text-white/50 text-sm max-w-sm mb-6">Link your Roblox account in Settings and sync your inventory to get started.</p>
+              <h3 className="text-xl font-bold text-[#F5F5F5] mb-2">Your portfolio is empty.</h3>
+              <p className="text-[#8A8A8A] text-sm max-w-sm mb-6">Link your Roblox account in Settings and click "Sync Roblox" to instantly load your collectibles.</p>
               <div className="flex gap-3">
-                <button onClick={syncRobloxInventory} className="text-sm font-bold text-white bg-indigo-600 px-6 py-3 rounded-2xl hover:bg-indigo-500 active:scale-95 transition-all shadow-lg shadow-indigo-600/30">
+                <button onClick={syncRobloxInventory} className="text-sm font-bold text-[#050505] bg-[#F5F5F5] px-6 py-3 rounded-xl hover:bg-white active:scale-95 transition-all shadow-md">
                   Sync Roblox Inventory
                 </button>
-                <button onClick={() => setIsAddOpen(true)} className="text-sm font-bold text-white glass-card px-6 py-3 rounded-2xl hover:bg-white/10 active:scale-95 transition-all">
+                <button onClick={() => setIsAddOpen(true)} className="text-sm font-bold text-[#F5F5F5] bg-[#1A1A1A] px-6 py-3 rounded-xl hover:bg-[#2A2A2A] active:scale-95 transition-all">
                   Add Manually
                 </button>
               </div>
@@ -1013,12 +936,14 @@
           ) : (
             <div>
               <div className="flex items-center justify-between mb-5">
-                <h3 className="text-lg font-bold text-white">Top Holdings</h3>
-                <button onClick={() => setActiveTab('portfolio')} className="text-sm text-white/60 hover:text-white font-semibold transition-colors">View All Assets</button>
+                <h3 className="text-lg font-bold text-[#F5F5F5]">Top Holdings</h3>
+                <button onClick={() => setActiveTab('portfolio')} className="text-sm text-[#8A8A8A] hover:text-[#F5F5F5] font-semibold transition-colors">View Portfolio</button>
               </div>
               <div className="space-y-3">
                 {[...items].sort((a,b) => (b.currentPrice * b.quantity) - (a.currentPrice * a.quantity)).slice(0, 5).map((item, index) => (
-                  <ItemRow key={item.id} item={item} onClick={() => setSelectedItem(item)} currencyFormat={settings.currencyFormat} index={index} />
+                  <div key={item.id} className="animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards" style={{ animationDelay: `${index * 75}ms` }}>
+                    <ItemRow item={item} onClick={() => setSelectedItem(item)} currencyFormat={settings.currencyFormat} />
+                  </div>
                 ))}
               </div>
             </div>
@@ -1027,29 +952,29 @@
       );
 
       const renderPortfolio = () => (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out fill-mode-backwards">
           <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-black text-white tracking-tight">Portfolio</h2>
+            <h2 className="text-3xl font-black text-[#F5F5F5] tracking-tight">Portfolio</h2>
             <div className="flex gap-2">
-              <button onClick={syncRobloxInventory} disabled={isSyncingInventory} className="flex items-center gap-2 px-4 py-2.5 glass-card hover:bg-white/10 text-white rounded-xl font-bold text-sm transition-all active:scale-95">
-                <RefreshCw className={`w-4 h-4 text-emerald-400 ${isSyncingInventory ? 'animate-spin' : ''}`} /> Sync
+              <button onClick={syncRobloxInventory} disabled={isSyncingInventory} className="flex items-center gap-2 px-4 py-2.5 bg-[#111111] hover:bg-[#1A1A1A] text-[#F5F5F5] rounded-xl font-bold text-sm transition-all active:scale-95 border border-[#1A1A1A]">
+                <RefreshCw className={`w-4 h-4 text-[#30D158] ${isSyncingInventory ? 'animate-spin' : ''}`} /> Sync
               </button>
-              <button onClick={() => setIsAddOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm transition-all active:scale-95 shadow-lg shadow-indigo-600/30">
+              <button onClick={() => setIsAddOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-[#F5F5F5] text-[#050505] hover:bg-white rounded-xl font-bold text-sm transition-all active:scale-95 shadow-sm">
                 <Plus className="w-4 h-4" /> Add
               </button>
             </div>
           </div>
           
           {items.length === 0 ? (
-            <div className="py-20 text-center glass-card rounded-3xl p-8">
-              <p className="text-white/50 text-sm font-semibold">No assets in portfolio. Sync your Roblox account or add items manually.</p>
+            <div className="py-20 flex flex-col items-center justify-center text-center">
+                <p className="text-[#8A8A8A] text-sm font-semibold">No assets in portfolio. Sync your Roblox account or add manually.</p>
             </div>
           ) : (
-            <div className="glass-card rounded-3xl overflow-hidden shadow-2xl">
+            <div className="bg-[#0A0A0A] rounded-3xl border border-[#1A1A1A] overflow-hidden shadow-2xl">
               <div className="overflow-x-auto custom-scrollbar">
                 <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
-                    <tr className="border-b border-white/10 text-white/40 text-xs font-bold uppercase tracking-wider bg-white/5">
+                    <tr className="border-b border-[#1A1A1A] text-[#8A8A8A] text-xs font-bold uppercase tracking-wider bg-[#111111]">
                       <th className="p-5 pl-6">Asset Name</th>
                       <th className="p-5 text-center">Status</th>
                       <th className="p-5 text-right">Avg Cost</th>
@@ -1058,35 +983,35 @@
                       <th className="p-5 pr-6 text-right">Total Worth</th>
                     </tr>
                   </thead>
-                  <tbody className="text-sm divide-y divide-white/5">
+                  <tbody className="text-sm divide-y divide-[#1A1A1A]">
                     {[...items].sort((a,b) => (b.currentPrice * b.quantity) - (a.currentPrice * a.quantity)).map((item, index) => {
                       const profit = (item.currentPrice - item.boughtPrice) * item.quantity;
                       const roi = item.boughtPrice > 0 ? ((item.currentPrice - item.boughtPrice) / item.boughtPrice) * 100 : 0;
                       return (
-                        <tr key={item.id} onClick={() => setSelectedItem(item)} className="hover:bg-white/5 transition-colors cursor-pointer group">
+                        <tr key={item.id} onClick={() => setSelectedItem(item)} className="hover:bg-[#111111] transition-colors cursor-pointer group animate-in fade-in fill-mode-backwards" style={{ animationDelay: `${index * 40}ms`}}>
                           <td className="p-5 pl-6 flex items-center gap-4">
-                            <RobloxImage src={item.imageUrl} className="w-12 h-12 rounded-xl border border-white/10 p-1 group-hover:scale-105 transition-transform" />
+                            <RobloxImage src={item.imageUrl} className="w-12 h-12 rounded-xl border border-[#1A1A1A] p-1 bg-[#050505] group-hover:scale-105 transition-transform duration-300" />
                             <div>
-                              <p className="text-white font-bold truncate max-w-[200px]">{item.name}</p>
-                              <p className="text-xs text-white/40 mt-0.5 font-semibold">Qty: {item.quantity}</p>
+                              <p className="text-[#F5F5F5] font-bold truncate max-w-[200px]">{item.name}</p>
+                              <p className="text-xs text-[#8A8A8A] mt-0.5 font-semibold">Qty: {item.quantity}</p>
                             </div>
                           </td>
                           <td className="p-5 text-center">
                             {item.isLimited ? (
-                              <span className="text-[10px] font-black bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded-md border border-emerald-500/20">LIMITED</span>
+                              <span className="text-[10px] font-black bg-[#30D158]/10 text-[#30D158] px-2.5 py-1 rounded shadow-sm">LIMITED</span>
                             ) : (
-                              <span className="text-[10px] font-bold bg-white/5 text-white/40 px-2.5 py-1 rounded-md">STANDARD</span>
+                              <span className="text-[10px] font-bold bg-[#1A1A1A] text-[#8A8A8A] px-2.5 py-1 rounded">STANDARD</span>
                             )}
                           </td>
-                          <td className="p-5 text-right text-white/60 font-semibold">{formatRobux(item.boughtPrice, settings.currencyFormat)}</td>
-                          <td className="p-5 text-right text-white font-bold">{formatRobux(item.currentPrice, settings.currencyFormat)}</td>
+                          <td className="p-5 text-right text-[#8A8A8A] font-semibold">{formatRobux(item.boughtPrice, settings.currencyFormat)}</td>
+                          <td className="p-5 text-right text-[#F5F5F5] font-bold">{formatRobux(item.currentPrice, settings.currencyFormat)}</td>
                           <td className="p-5 text-right">
-                            <div className={`font-bold ${profit >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                            <div className={`font-bold ${profit >= 0 ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
                               {profit > 0 ? '+' : ''}{formatRobux(profit, settings.currencyFormat)}
                             </div>
-                            <div className="text-xs opacity-70 mt-0.5 font-semibold">{roi > 0 ? '+' : ''}{roi.toFixed(1)}%</div>
+                            <div className="text-xs opacity-70 mt-1 font-semibold">{roi > 0 ? '+' : ''}{roi.toFixed(1)}%</div>
                           </td>
-                          <td className="p-5 pr-6 text-right font-black text-white text-base">
+                          <td className="p-5 pr-6 text-right font-black text-[#F5F5F5] text-base">
                             {formatRobux(item.currentPrice * item.quantity, settings.currencyFormat)}
                           </td>
                         </tr>
@@ -1101,63 +1026,66 @@
       );
 
       const renderWishlist = () => (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out fill-mode-backwards">
           <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-3xl font-black text-white tracking-tight">Wishlist</h2>
-              <p className="text-sm text-white/50 mt-1 font-semibold">Monitor target items and budget preparedness.</p>
+              <h2 className="text-3xl font-black text-[#F5F5F5] tracking-tight">Wishlist</h2>
+              <p className="text-sm text-[#8A8A8A] mt-1 font-semibold">Monitor prices and budget readiness.</p>
             </div>
-            <button onClick={() => setIsWishlistAddOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm transition-all active:scale-95 shadow-lg shadow-indigo-600/30">
+            <button onClick={() => setIsWishlistAddOpen(true)} className="flex items-center gap-2 px-5 py-2.5 bg-[#F5F5F5] text-[#050505] hover:bg-white rounded-xl font-bold text-sm transition-all active:scale-95 shadow-sm">
               <Plus className="w-4 h-4" /> Add Item
             </button>
           </div>
 
           {wishlist.length === 0 ? (
-            <div className="py-24 text-center glass-card rounded-3xl p-8 flex flex-col items-center">
-              <Heart className="w-16 h-16 text-white/10 mb-5" />
-              <h3 className="text-xl font-bold text-white mb-2">Your wishlist is empty</h3>
-              <p className="text-white/50 text-sm mb-6">Track items you wish to purchase and get alerted when prices drop.</p>
-              <button onClick={() => setIsWishlistAddOpen(true)} className="text-sm font-bold text-white bg-indigo-600 px-6 py-3 rounded-2xl hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/30">
+            <div className="py-24 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500">
+              <Heart className="w-16 h-16 text-[#1A1A1A] mb-5" />
+              <h3 className="text-xl font-bold text-[#F5F5F5] mb-2">Your wishlist is empty</h3>
+              <p className="text-[#8A8A8A] text-sm mb-8">Add items you want to buy and track your Robux savings.</p>
+              <button onClick={() => setIsWishlistAddOpen(true)} className="text-sm font-bold text-[#050505] bg-[#F5F5F5] px-6 py-3 rounded-xl hover:bg-white active:scale-95 transition-all shadow-md">
                 Start Wishlisting
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              {wishlist.map((w) => {
+              {wishlist.map((w, index) => {
                 const diff = w.targetPrice - w.availableRobux;
                 const progress = Math.min(100, Math.max(0, (w.availableRobux / w.targetPrice) * 100));
                 return (
-                  <GlassCard3D 
+                  <div 
                     key={w.id} 
                     onClick={() => setSelectedWishlistItem(w)}
-                    className={w.isAffordable ? 'border-emerald-500/40' : ''}
+                    className={`p-6 bg-[#0A0A0A] hover:bg-[#111111] border rounded-3xl cursor-pointer transition-all duration-300 flex flex-col justify-between group hover:-translate-y-1 ${
+                      w.isAffordable ? 'border-[#30D158]/50 shadow-[0_10px_30px_rgba(48,209,88,0.1)]' : 'border-[#1A1A1A] hover:border-[#2A2A2A] shadow-xl'
+                    }`}
+                    style={{ animationDelay: `${index * 75}ms` }}
                   >
                     <div className="flex items-start gap-5">
-                      <RobloxImage src={w.imageUrl} className="w-20 h-20 rounded-2xl border border-white/10 p-1 flex-shrink-0" />
+                      <RobloxImage src={w.imageUrl} className="w-20 h-20 rounded-2xl border border-[#1A1A1A] bg-[#050505] p-1.5 flex-shrink-0 group-hover:scale-105 transition-transform duration-500 ease-out" />
                       <div className="flex-1 min-w-0 pt-1">
                         <div className="flex items-center justify-between mb-1">
-                          <h4 className="text-base font-bold text-white truncate pr-2">{w.name}</h4>
+                          <h4 className="text-base font-bold text-[#F5F5F5] truncate pr-2">{w.name}</h4>
                           {w.isAffordable && (
-                            <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 animate-pulse">AFFORDABLE</span>
+                            <span className="text-[10px] font-black text-[#30D158] bg-[#30D158]/10 px-2 py-1 rounded shadow-sm animate-pulse">AFFORDABLE</span>
                           )}
                         </div>
-                        <p className="text-xs text-white/50 mt-1 font-semibold">Current: <strong className="text-white text-sm">{formatRobux(w.currentPrice, settings.currencyFormat)}</strong></p>
-                        <p className="text-xs text-white/50 mt-0.5 font-semibold">Target: {formatRobux(w.targetPrice, settings.currencyFormat)}</p>
+                        <p className="text-xs text-[#8A8A8A] mt-1.5 font-semibold">Current: <strong className="text-[#F5F5F5] text-sm">{formatRobux(w.currentPrice, settings.currencyFormat)}</strong></p>
+                        <p className="text-xs text-[#8A8A8A] mt-1 font-semibold">Target: {formatRobux(w.targetPrice, settings.currencyFormat)}</p>
                       </div>
                     </div>
 
-                    <div className="mt-6 space-y-2.5">
+                    <div className="mt-6 space-y-3">
                       <div className="flex justify-between text-xs font-bold">
-                        <span className="text-white/50">Balance: <strong className="text-white">{formatRobux(w.availableRobux, settings.currencyFormat)}</strong></span>
-                        <span className={w.isAffordable ? 'text-emerald-400 font-bold' : 'text-white/40'}>
-                          {w.isAffordable ? 'Target Reached!' : `${formatRobux(diff, settings.currencyFormat)} needed`}
+                        <span className="text-[#8A8A8A]">Your Balance: <strong className="text-[#F5F5F5]">{formatRobux(w.availableRobux, settings.currencyFormat)}</strong></span>
+                        <span className={w.isAffordable ? 'text-[#30D158] font-bold' : 'text-[#8A8A8A]'}>
+                          {w.isAffordable ? 'Goal Reached!' : `${formatRobux(diff, settings.currencyFormat)} needed`}
                         </span>
                       </div>
-                      <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden">
-                        <div className={`h-full transition-all duration-1000 ${w.isAffordable ? 'bg-emerald-400' : 'bg-indigo-500'}`} style={{ width: `${progress}%` }} />
+                      <div className="w-full bg-[#1A1A1A] h-2.5 rounded-full overflow-hidden shadow-inner">
+                        <div className={`h-full transition-all duration-1000 ease-out ${w.isAffordable ? 'bg-[#30D158]' : 'bg-[#F5F5F5]'}`} style={{ width: `${progress}%` }} />
                       </div>
                     </div>
-                  </GlassCard3D>
+                  </div>
                 );
               })}
             </div>
@@ -1166,61 +1094,21 @@
       );
 
       const renderFavorites = () => (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <h2 className="text-3xl font-black text-white tracking-tight">Pinned Favorites</h2>
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out fill-mode-backwards">
+          <h2 className="text-3xl font-black text-[#F5F5F5] tracking-tight">Favorites</h2>
           
           {items.filter(i => i.isFavorite).length === 0 ? (
-            <div className="py-24 text-center glass-card rounded-3xl p-8 flex flex-col items-center">
-              <Star className="w-16 h-16 text-white/10 mb-5" />
-              <h3 className="text-xl font-bold text-white mb-2">No favorites yet</h3>
-              <p className="text-white/50 text-sm">Star any item in your portfolio to pin it here for quick inspection.</p>
+            <div className="py-24 flex flex-col items-center justify-center text-center animate-in zoom-in-95 duration-500">
+              <Star className="w-16 h-16 text-[#1A1A1A] mb-5" />
+              <h3 className="text-xl font-bold text-[#F5F5F5] mb-2">No favorites yet.</h3>
+              <p className="text-[#8A8A8A] text-sm">Star any item in your portfolio to pin it here.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {items.filter(i => i.isFavorite).map((item, index) => (
-                 <ItemRow key={item.id} item={item} onClick={() => setSelectedItem(item)} currencyFormat={settings.currencyFormat} index={index} />
-              ))}
-            </div>
-          )}
-        </div>
-      );
-
-      const renderNotifications = () => (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-black text-white tracking-tight">Price Alerts</h2>
-            {notifications.length > 0 && (
-              <button 
-                onClick={() => {
-                  setNotifications([]);
-                  persistDataToCloud(items, wishlist, [], settings);
-                }}
-                className="text-xs text-rose-400 hover:underline font-bold"
-              >
-                Clear History
-              </button>
-            )}
-          </div>
-
-          {notifications.length === 0 ? (
-            <div className="py-24 text-center glass-card rounded-3xl p-8 flex flex-col items-center">
-              <Bell className="w-16 h-16 text-white/10 mb-5" />
-              <h3 className="text-xl font-bold text-white mb-2">No alerts yet</h3>
-              <p className="text-white/50 text-sm">When RAP or item prices change during live syncs, live logs will show up here.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {notifications.map((note) => (
-                <div key={note.id} className="glass-card rounded-2xl p-4 flex items-start gap-4">
-                  <div className={`p-2.5 rounded-xl border ${note.type === 'drop' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
-                    {note.type === 'drop' ? <ArrowDownRight className="w-5 h-5" /> : <ArrowUpRight className="w-5 h-5" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white">{note.title}</p>
-                    <p className="text-xs text-white/60 mt-1">{note.message}</p>
-                    <p className="text-[10px] text-white/30 font-mono mt-1.5">{new Date(note.time).toLocaleString()}</p>
-                  </div>
-                </div>
+                 <div key={item.id} className="animate-in fade-in slide-in-from-bottom-4 fill-mode-backwards" style={{ animationDelay: `${index * 75}ms` }}>
+                   <ItemRow item={item} onClick={() => setSelectedItem(item)} currencyFormat={settings.currencyFormat} />
+                 </div>
               ))}
             </div>
           )}
@@ -1228,172 +1116,233 @@
       );
 
       const renderSettings = () => (
-        <div className="max-w-2xl space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <h2 className="text-3xl font-black text-white tracking-tight">Settings</h2>
+        <div className="max-w-2xl space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700 ease-out fill-mode-backwards">
+          <h2 className="text-3xl font-black text-[#F5F5F5] tracking-tight">Settings</h2>
 
-          <div className="space-y-8">
+          <div className="space-y-10">
             
-            {/* Account Link */}
+            {/* Profile Section */}
             <section>
-              <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest mb-3 ml-1">Roblox Connection</h3>
-              <div className="glass-card rounded-3xl p-6 space-y-6">
+              <h3 className="text-xs font-bold text-[#8A8A8A] uppercase tracking-widest mb-4 ml-1">Roblox Account Connection</h3>
+              <div className="bg-[#0A0A0A] rounded-3xl border border-[#1A1A1A] p-6 space-y-6 shadow-lg">
                 
                 <div className="flex items-center gap-5">
-                   <RobloxImage src={profileDisplayImage} type="user" className="w-20 h-20 rounded-2xl border border-white/10" />
+                   <RobloxImage src={profileDisplayImage} type="user" className="w-20 h-20 rounded-full border border-[#1A1A1A] shadow-xl bg-[#111111]" />
                    <div className="flex-1 min-w-0">
-                      <h4 className="text-white font-bold text-xl truncate">
+                      <h4 className="text-[#F5F5F5] font-bold text-xl truncate">
                         {settings.profile.displayName || 'Guest User'}
                       </h4>
-                      <p className="text-white/50 text-sm truncate font-medium mt-0.5">
-                        {settings.profile.username ? `@${settings.profile.username}` : 'Link your account below.'}
+                      <p className="text-[#8A8A8A] text-sm truncate font-semibold mt-1">
+                        {settings.profile.username ? `@${settings.profile.username}` : 'Link your Roblox username or User ID below.'}
                       </p>
-                      {settings.profile.userId && <p className="text-xs text-white/30 font-mono mt-1">User ID: {settings.profile.userId}</p>}
+                      {settings.profile.userId && <p className="text-xs text-[#8A8A8A] font-mono mt-1 opacity-70">ID: {settings.profile.userId}</p>}
                    </div>
                 </div>
 
-                <div className="space-y-4 pt-4 border-t border-white/10">
+                <div className="space-y-5 pt-4 border-t border-[#1A1A1A]">
                   <div>
-                    <label className="block text-xs font-bold text-white/50 mb-2 uppercase tracking-wider">Roblox Username or User ID</label>
+                    <label className="block text-xs font-bold text-[#8A8A8A] mb-2 uppercase tracking-wider">Roblox Username or User ID</label>
                     <div className="flex gap-2">
                       <input 
                         type="text" 
                         placeholder="e.g. Builderman or 156" 
                         value={settings.profile.username}
                         onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, username: e.target.value }})}
-                        className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-indigo-500 transition-colors" 
+                        className="flex-1 bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-[#F5F5F5] transition-colors" 
                       />
                       <button 
                         onClick={async () => {
                           if(!settings.profile.username.trim()) return;
                           try {
                             const prof = await RobloxAPI.getUser(settings.profile.username.trim());
-                            const newSettings = { ...settings, profile: { ...settings.profile, ...prof }};
-                            setSettings(newSettings);
-                            persistDataToCloud(items, wishlist, notifications, newSettings);
-                            showToast("Account connected!");
+                            setSettings({ ...settings, profile: { ...settings.profile, ...prof, customImage: '', customAssetId: '' }});
+                            showToast("Account successfully linked!");
                           } catch (err) {
                             showToast("User not found", "error");
                           }
                         }}
-                        className="bg-indigo-600 text-white px-5 py-3 rounded-xl text-sm font-bold transition-all hover:bg-indigo-500 active:scale-95 shadow-lg shadow-indigo-600/30"
+                        className="bg-[#F5F5F5] text-[#050505] px-5 py-3 rounded-xl text-sm font-bold transition-all hover:bg-white active:scale-95 shadow-sm"
                       >
                         Connect
                       </button>
                     </div>
+                    <p className="text-[11px] text-[#8A8A8A] mt-2 font-medium">Once linked, you can sync your entire Roblox inventory instantly from the Dashboard or Portfolio tabs.</p>
                   </div>
 
-                  <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl flex items-start gap-2.5">
-                    <Info className="w-4 h-4 text-indigo-400 mt-0.5 flex-shrink-0" />
-                    <p className="text-xs text-indigo-200/80 leading-relaxed">
-                      <strong>Inventory Private Error?</strong> Ensure your Roblox privacy settings permit inventory visibility: <em>Roblox -> Settings -> Privacy -> "Who can see my inventory?" -> Everyone</em>.
-                    </p>
+                  <div>
+                    <label className="block text-xs font-bold text-[#8A8A8A] mb-2 uppercase tracking-wider">Custom Avatar (Asset ID)</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        placeholder="e.g. 19027209" 
+                        value={settings.profile.customAssetId}
+                        onChange={(e) => setSettings({ ...settings, profile: { ...settings.profile, customAssetId: e.target.value }})}
+                        className="flex-1 bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-[#F5F5F5] transition-colors" 
+                      />
+                      <button 
+                        onClick={async () => {
+                          if(!settings.profile.customAssetId.trim()) return;
+                          const parsedId = RobloxAPI.extractId(settings.profile.customAssetId.trim());
+                          if (!parsedId) return showToast("Invalid ID", "error");
+                          
+                          try {
+                            const url = await RobloxAPI.getAssetThumbnail(parsedId);
+                            setSettings({ ...settings, profile: { ...settings.profile, customImage: url }});
+                            showToast("Custom avatar applied");
+                          } catch (err) {
+                            showToast("Failed to fetch asset", "error");
+                          }
+                        }}
+                        className="bg-[#1A1A1A] text-[#F5F5F5] hover:bg-[#2A2A2A] px-5 py-3 rounded-xl text-sm font-bold transition-all active:scale-95"
+                      >
+                        Apply
+                      </button>
+                    </div>
                   </div>
+                  
+                  <div className="pt-2">
+                    <button 
+                      onClick={() => {
+                        setSettings({ ...settings, profile: { username: '', userId: '', displayName: '', avatarUrl: '', customImage: '', customAssetId: '' }});
+                        showToast("Profile reset to defaults");
+                      }}
+                      className="text-[#FF453A] text-xs font-bold hover:underline bg-[#FF453A]/10 px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      Unlink Account
+                    </button>
+                  </div>
+
                 </div>
               </div>
             </section>
 
-            {/* Sync Settings */}
+            {/* Market Data */}
             <section>
-              <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest mb-3 ml-1">Market Data & Currency</h3>
-              <div className="glass-card rounded-3xl overflow-hidden divide-y divide-white/10">
-                <div className="p-5 flex items-center justify-between">
+              <h3 className="text-xs font-bold text-[#8A8A8A] uppercase tracking-widest mb-4 ml-1">Market Sync Settings</h3>
+              <div className="bg-[#0A0A0A] rounded-3xl border border-[#1A1A1A] overflow-hidden shadow-lg">
+                <div className="p-5 flex items-center justify-between border-b border-[#1A1A1A] hover:bg-[#111111] transition-colors">
                   <div>
-                    <p className="text-white font-bold text-sm">Auto-Refresh Market Prices</p>
-                    <p className="text-white/40 text-xs mt-0.5">Keep RAP and floor prices dynamically updated.</p>
+                    <p className="text-[#F5F5F5] font-bold text-sm">Auto-Refresh Market Prices</p>
+                    <p className="text-[#8A8A8A] text-xs mt-1 font-semibold">Keep RAP and floor prices automatically updated.</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer" 
-                      checked={settings.autoRefresh} 
-                      onChange={e => {
-                        const newSettings = {...settings, autoRefresh: e.target.checked};
-                        setSettings(newSettings);
-                        persistDataToCloud(items, wishlist, notifications, newSettings);
-                      }} 
-                    />
-                    <div className="w-11 h-6 bg-white/10 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                    <input type="checkbox" className="sr-only peer" checked={settings.autoRefresh} onChange={e => setSettings({...settings, autoRefresh: e.target.checked})} />
+                    <div className="w-11 h-6 bg-[#1A1A1A] rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#30D158] peer-checked:after:bg-[#050505]"></div>
                   </label>
                 </div>
-                <div className="p-5 flex items-center justify-between">
-                  <p className="text-white font-bold text-sm">Currency Format</p>
+                <div className="p-5 flex items-center justify-between border-b border-[#1A1A1A] hover:bg-[#111111] transition-colors">
+                  <p className="text-[#F5F5F5] font-bold text-sm">Sync Frequency</p>
                   <select 
-                    value={settings.currencyFormat} 
-                    onChange={e => {
-                      const newSettings = {...settings, currencyFormat: e.target.value};
-                      setSettings(newSettings);
-                      persistDataToCloud(items, wishlist, notifications, newSettings);
-                    }}
-                    className="bg-white/10 border-none text-white rounded-xl px-4 py-2 text-sm font-bold cursor-pointer focus:outline-none"
+                    value={settings.refreshInterval} onChange={e => setSettings({...settings, refreshInterval: Number(e.target.value)})}
+                    disabled={!settings.autoRefresh}
+                    className="bg-[#1A1A1A] border-none text-[#F5F5F5] rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#30D158] disabled:opacity-50 transition-all font-bold cursor-pointer"
                   >
-                    <option value="suffix" className="bg-[#0b0b12]">1,250 R$</option>
-                    <option value="prefix" className="bg-[#0b0b12]">R$ 1,250</option>
+                    <option value={30}>Every 30s</option>
+                    <option value={60}>Every 1 min</option>
+                    <option value={300}>Every 5 min</option>
+                  </select>
+                </div>
+                <div className="p-5 flex items-center justify-between hover:bg-[#111111] transition-colors">
+                  <p className="text-[#F5F5F5] font-bold text-sm">Currency Format</p>
+                  <select 
+                    value={settings.currencyFormat} onChange={e => setSettings({...settings, currencyFormat: e.target.value})}
+                    className="bg-[#1A1A1A] border-none text-[#F5F5F5] rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[#30D158] transition-all font-bold cursor-pointer"
+                  >
+                    <option value="suffix">1,250 R$</option>
+                    <option value="prefix">R$ 1,250</option>
                   </select>
                 </div>
               </div>
             </section>
 
-            {/* PWA Mobile Add Prompt Button */}
+            {/* Data Management */}
             <section>
-              <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest mb-3 ml-1">App Install & Web App</h3>
-              <div className="glass-card rounded-3xl p-5 flex items-center justify-between">
-                <div>
-                  <p className="text-white font-bold text-sm">Add Raply to Home Screen</p>
-                  <p className="text-white/40 text-xs mt-0.5">Use Raply as a fullscreen mobile web app.</p>
-                </div>
-                <button 
-                  onClick={() => setIsPwaTutorialOpen(true)}
-                  className="bg-white/10 hover:bg-white/20 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all"
-                >
-                  View Guide
+              <h3 className="text-xs font-bold text-[#8A8A8A] uppercase tracking-widest mb-4 ml-1">Database & Storage</h3>
+              <div className="bg-[#0A0A0A] rounded-3xl border border-[#1A1A1A] overflow-hidden shadow-lg">
+                <button onClick={() => {
+                  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({items, wishlist, settings}));
+                  const dlAnchorElem = document.createElement('a');
+                  dlAnchorElem.setAttribute("href", dataStr);
+                  dlAnchorElem.setAttribute("download", "raply_ultimate_backup.json");
+                  dlAnchorElem.click();
+                  showToast("Backup exported successfully");
+                }} className="w-full p-5 flex items-center gap-4 text-sm font-bold text-[#F5F5F5] hover:bg-[#111111] transition-colors border-b border-[#1A1A1A] text-left active:bg-[#1A1A1A]">
+                  <Download className="w-5 h-5 text-[#8A8A8A]" /> Export JSON Backup
+                </button>
+                <label className="w-full p-5 flex items-center gap-4 text-sm font-bold text-[#F5F5F5] hover:bg-[#111111] transition-colors cursor-pointer border-b border-[#1A1A1A] active:bg-[#1A1A1A]">
+                  <Upload className="w-5 h-5 text-[#8A8A8A]" /> Import JSON Backup
+                  <input type="file" accept=".json" className="hidden" onChange={e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      try {
+                        const data = JSON.parse(event.target.result);
+                        if (data.items) setItems(data.items.map(normalizeItem));
+                        if (data.wishlist) setWishlist(data.wishlist.map(normalizeWishlistItem));
+                        if (data.settings) setSettings(normalizeSettings(data.settings));
+                        showToast("Data imported successfully");
+                      } catch (err) {
+                        showToast("Invalid backup file", "error");
+                      }
+                    };
+                    reader.readAsText(file);
+                  }} />
+                </label>
+                <button onClick={() => {
+                  if (window.confirm("Are you entirely sure? This will delete all your local database items forever.")) {
+                    setItems([]);
+                    setWishlist([]);
+                    setNotifications([]);
+                    showToast("All data successfully cleared.");
+                  }
+                }} className="w-full p-5 flex items-center gap-4 text-sm font-bold text-[#FF453A] hover:bg-[#111111] transition-colors text-left active:bg-[#1A1A1A]">
+                  <Trash2 className="w-5 h-5" /> Erase Local Database
                 </button>
               </div>
             </section>
 
-            <section className="pt-6 text-center pb-12">
-              <h1 className="text-2xl font-black tracking-[0.2em] text-white">RAPLY BY PAN</h1>
-              <p className="text-xs text-white/40 mt-1 font-semibold">Live Roblox Limiteds Analytics Platform</p>
+            <section className="pt-8 text-center pb-12">
+              <h1 className="text-2xl font-black tracking-[0.2em] text-[#F5F5F5]">RAPLY BY PAN</h1>
+              <p className="text-xs text-[#8A8A8A] mt-2 font-semibold">The Ultimate Professional Roblox Limiteds Tracker.</p>
+              <p className="text-[10px] text-[#8A8A8A] mt-6 font-mono opacity-40">Build 4.0.0 (Ultimate Final Edition)</p>
             </section>
 
           </div>
         </div>
       );
 
-      // Reusable Item Row Component
-      const ItemRow = ({ item, onClick, currencyFormat, index }) => {
+      // Item Row Component
+      const ItemRow = ({ item, onClick, currencyFormat }) => {
         const profit = (item.currentPrice - item.boughtPrice) * item.quantity;
         const isProfitable = profit >= 0;
 
         return (
-          <div 
-            onClick={onClick} 
-            className="glass-card hover:bg-white/10 rounded-2xl p-4 flex items-center gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
-            style={{ animationDelay: `${index * 50}ms` }}
-          >
-            <div className="w-14 h-14 rounded-xl bg-black/40 border border-white/10 p-1.5 flex-shrink-0 relative overflow-hidden">
-              <RobloxImage src={item.imageUrl} className="w-full h-full" />
+          <div onClick={onClick} className="flex items-center gap-4 p-4 bg-[#0A0A0A] hover:bg-[#111111] border border-[#1A1A1A] hover:border-[#2A2A2A] rounded-2xl cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-xl group active:scale-[0.98]">
+            <div className="w-14 h-14 rounded-xl bg-[#050505] border border-[#1A1A1A] p-1.5 flex-shrink-0 relative overflow-hidden">
+              <RobloxImage src={item.imageUrl} className="w-full h-full group-hover:scale-110 transition-transform duration-500 ease-out" />
               {item.isFavorite && (
-                <div className="absolute top-0 right-0 bg-black/80 rounded-bl-lg p-1 border-b border-l border-white/10">
-                  <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                <div className="absolute top-0 right-0 bg-[#0A0A0A] rounded-bl-lg p-1 border-b border-l border-[#1A1A1A]">
+                  <Star className="w-3 h-3 text-[#F5F5F5] fill-[#F5F5F5]" />
                 </div>
               )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h4 className="text-white font-bold text-sm truncate">{item.name}</h4>
+                <h4 className="text-[#F5F5F5] font-bold text-sm truncate">{item.name}</h4>
                 {item.isLimited ? (
-                  <span className="text-[9px] font-black bg-emerald-500/10 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/20 flex-shrink-0">LIMITED</span>
+                  <span className="text-[9px] font-black bg-[#30D158]/10 text-[#30D158] px-1.5 py-0.5 rounded shadow-sm flex-shrink-0">LIMITED</span>
                 ) : (
-                  <span className="text-[9px] font-bold bg-white/10 text-white/40 px-1.5 py-0.5 rounded flex-shrink-0">STANDARD</span>
+                  <span className="text-[9px] font-bold bg-[#1A1A1A] text-[#8A8A8A] px-1.5 py-0.5 rounded flex-shrink-0">STANDARD</span>
                 )}
               </div>
-              <p className="text-xs text-white/40 mt-1 font-semibold">
+              <p className="text-xs text-[#8A8A8A] mt-1 font-semibold">
                 {item.isLimited ? `RAP: ${formatRobux(item.rap, currencyFormat)}` : `Type: ${item.assetType}`}
               </p>
             </div>
             <div className="text-right flex-shrink-0">
-              <p className="text-white font-black text-sm">{formatRobux(item.currentPrice, currencyFormat)}</p>
-              <p className={`text-xs font-bold mt-0.5 ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}`}>
+              <p className="text-[#F5F5F5] font-black text-sm transition-colors">{formatRobux(item.currentPrice, currencyFormat)}</p>
+              <p className={`text-xs font-bold mt-1 ${isProfitable ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
                 {profit > 0 ? '+' : ''}{formatRobux(profit, currencyFormat)}
               </p>
             </div>
@@ -1405,70 +1354,41 @@
       // MODALS & OVERLAYS
       // ==========================================
 
-      const PwaTutorialModal = () => (
-        <Modal isOpen={isPwaTutorialOpen} onClose={() => setIsPwaTutorialOpen(false)} title="Add to Home Screen">
-          <div className="space-y-6">
-            <div className="p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center gap-3">
-              <Smartphone className="w-6 h-6 text-indigo-400 flex-shrink-0" />
-              <p className="text-xs text-indigo-200">
-                Install Raply by Pan on your device for dynamic full-screen view and quick launch.
-              </p>
+      const SearchModal = () => {
+        const searchResults = useMemo(() => {
+          if (!searchQuery) return [];
+          const q = searchQuery.toLowerCase();
+          return items.filter(i => i.name.toLowerCase().includes(q) || i.assetId.includes(q));
+        }, [searchQuery, items]);
+
+        return (
+          <Modal isOpen={isSearchOpen} onClose={() => {setIsSearchOpen(false); setSearchQuery('');}} title="Command Search">
+            <div className="relative mb-5">
+              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-[#8A8A8A]" />
+              <input 
+                autoFocus type="text" placeholder="Search portfolio by name or ID..."
+                value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl pl-12 pr-4 py-4 font-bold focus:outline-none focus:border-[#F5F5F5] transition-colors"
+              />
             </div>
-
-            <div className="space-y-4">
-              <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
-                  <span className="w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center text-[10px]">1</span> iOS Safari
-                </h4>
-                <ol className="text-xs text-white/60 space-y-1.5 pl-7 list-disc">
-                  <li>Tap the <strong>Share</strong> button at the bottom of Safari.</li>
-                  <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
-                  <li>Confirm by tapping <strong>Add</strong>.</li>
-                </ol>
-              </div>
-
-              <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                <h4 className="text-sm font-bold text-white flex items-center gap-2 mb-2">
-                  <span className="w-5 h-5 bg-indigo-600 rounded-full flex items-center justify-center text-[10px]">2</span> Android Chrome
-                </h4>
-                <ol className="text-xs text-white/60 space-y-1.5 pl-7 list-disc">
-                  <li>Tap the <strong>Three Dots (Menu)</strong> in top right.</li>
-                  <li>Select <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</li>
-                  <li>Follow prompt to confirm.</li>
-                </ol>
-              </div>
+            <div className="space-y-1.5 max-h-[50vh] overflow-y-auto custom-scrollbar">
+              {searchResults.length === 0 && searchQuery ? (
+                <p className="text-center text-[#8A8A8A] py-8 text-sm animate-in fade-in font-semibold">No results found in your portfolio.</p>
+              ) : (
+                searchResults.map(item => (
+                  <div key={item.id} onClick={() => { setIsSearchOpen(false); setSearchQuery(''); setSelectedItem(item); }} className="flex items-center gap-4 p-3 hover:bg-[#111111] rounded-xl cursor-pointer transition-colors active:scale-[0.98] group">
+                    <RobloxImage src={item.imageUrl} className="w-10 h-10 rounded-lg bg-[#050505] p-1 border border-[#1A1A1A]" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-[#F5F5F5] truncate">{item.name}</p>
+                    </div>
+                    <ChevronRight className="w-5 h-5 text-[#8A8A8A] group-hover:text-[#F5F5F5] transition-all group-hover:translate-x-1" />
+                  </div>
+                ))
+              )}
             </div>
-
-            <button onClick={() => setIsPwaTutorialOpen(false)} className="w-full bg-indigo-600 text-white font-bold py-3.5 rounded-2xl">
-              Got It
-            </button>
-          </div>
-        </Modal>
-      );
-
-      const SearchModal = () => (
-        <Modal isOpen={isSearchOpen} onClose={() => {setIsSearchOpen(false); setSearchQuery('');}} title="Search Portfolio">
-          <div className="relative mb-4">
-            <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
-            <input 
-              autoFocus type="text" placeholder="Search item name or asset ID..."
-              value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 text-white rounded-2xl pl-12 pr-4 py-4 font-bold focus:outline-none focus:border-indigo-500 transition-colors"
-            />
-          </div>
-          <div className="space-y-2 max-h-[50vh] overflow-y-auto custom-scrollbar">
-            {items.filter(i => i.name.toLowerCase().includes(searchQuery.toLowerCase()) || i.assetId.includes(searchQuery)).map(item => (
-              <div key={item.id} onClick={() => { setIsSearchOpen(false); setSearchQuery(''); setSelectedItem(item); }} className="flex items-center gap-4 p-3 hover:bg-white/10 rounded-2xl cursor-pointer">
-                <RobloxImage src={item.imageUrl} className="w-10 h-10 rounded-xl" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-white truncate">{item.name}</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-white/40" />
-              </div>
-            ))}
-          </div>
-        </Modal>
-      );
+          </Modal>
+        );
+      };
 
       const AddModal = () => {
         const [idInput, setIdInput] = useState('');
@@ -1477,10 +1397,16 @@
         const [error, setError] = useState('');
         const [form, setForm] = useState({ boughtPrice: '', quantity: '1' });
 
+        useEffect(() => { if(!isAddOpen) { setIdInput(''); setPreview(null); setError(''); } }, [isAddOpen]);
+
         const handleSearch = async (e) => {
           e.preventDefault();
           const parsedId = RobloxAPI.extractId(idInput);
-          if (!parsedId) return setError("Please enter a valid Roblox URL or Asset ID.");
+          
+          if (!parsedId) {
+            setError("Please enter a valid Roblox URL or Asset ID.");
+            return;
+          }
 
           setLoading(true); setError(''); setPreview(null);
           try {
@@ -1488,62 +1414,70 @@
             setPreview(data);
             setForm({ boughtPrice: String(data.currentPrice || 0), quantity: '1' });
           } catch (err) {
-            setError("Could not fetch item. Check ID or proxy status.");
+            setError("Could not fetch item. It may not exist or the proxy is busy.");
           } finally { setLoading(false); }
         };
 
         const handleAdd = () => {
           if (!preview) return;
+          const parsedBoughtPrice = Number(form.boughtPrice) || 0;
+          
           const newItem = normalizeItem({
             ...preview,
             id: Date.now().toString(),
-            boughtPrice: Number(form.boughtPrice) || 0,
+            boughtPrice: parsedBoughtPrice,
             quantity: Number(form.quantity) || 1,
-            history: preview.isLimited ? [Number(form.boughtPrice) || preview.currentPrice, preview.currentPrice] : []
+            history: preview.isLimited ? [parsedBoughtPrice, preview.currentPrice] : []
           });
-          const updated = [...items, newItem];
-          setItems(updated);
-          persistDataToCloud(updated, wishlist, notifications, settings);
-          showToast("Asset added to portfolio");
+          
+          setItems(prev => [...prev, newItem]);
+          showToast("Asset securely added to portfolio");
           setIsAddOpen(false);
         };
 
         return (
           <Modal isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} title="Add Asset Manually">
             {!preview ? (
-              <form onSubmit={handleSearch} className="space-y-4">
+              <form onSubmit={handleSearch} className="space-y-5 animate-in fade-in duration-300">
                 <div>
-                  <label className="block text-xs font-bold text-white/50 mb-2 uppercase">Asset URL or ID</label>
-                  <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="e.g. 19027209" className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-4 py-3.5 font-bold focus:outline-none focus:border-indigo-500" />
+                  <label className="block text-xs font-black text-[#8A8A8A] mb-2 uppercase tracking-wider">Asset URL or ID</label>
+                  <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="e.g. 19027209 or paste catalog link..." className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-4 font-bold focus:outline-none focus:border-[#F5F5F5] transition-colors" />
                 </div>
-                {error && <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs font-bold">{error}</div>}
-                <button type="submit" disabled={loading || !idInput.trim()} className="w-full bg-indigo-600 text-white font-bold rounded-2xl py-3.5 flex justify-center items-center gap-2">
-                  {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <><Search className="w-5 h-5" /> Search Catalog</>}
+                {error && <div className="p-3 bg-[#FF453A]/10 text-[#FF453A] rounded-xl text-xs font-bold animate-in slide-in-from-top-2">{error}</div>}
+                <button type="submit" disabled={loading || !idInput.trim()} className="w-full bg-[#F5F5F5] text-[#050505] font-black rounded-xl py-4 hover:bg-white active:scale-[0.98] transition-all disabled:opacity-50 flex justify-center items-center gap-2 shadow-sm">
+                  {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <><Search className="w-5 h-5" /> Inspect Asset</>}
                 </button>
               </form>
             ) : (
-              <div className="space-y-5">
-                <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <RobloxImage src={preview.imageUrl} className="w-14 h-14 rounded-xl" />
+              <div className="space-y-6 animate-in slide-in-from-right-8 fade-in duration-400 ease-out">
+                <div className="flex items-center gap-4 bg-[#111111] p-4 rounded-2xl border border-[#1A1A1A] shadow-inner">
+                  <RobloxImage src={preview.imageUrl} className="w-14 h-14 rounded-xl bg-[#050505] border border-[#1A1A1A]" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{preview.name}</p>
-                    <p className="text-xs text-white/50 mt-1 font-semibold">Value: <span className="text-white font-bold">{formatRobux(preview.currentPrice, settings.currencyFormat)}</span></p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-black text-[#F5F5F5] truncate">{preview.name}</p>
+                      {preview.isLimited ? (
+                        <span className="text-[9px] font-black bg-[#30D158]/10 text-[#30D158] px-1.5 py-0.5 rounded shadow-sm">LIMITED</span>
+                      ) : (
+                        <span className="text-[9px] font-bold bg-[#1A1A1A] text-[#8A8A8A] px-1.5 py-0.5 rounded">STANDARD</span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[#8A8A8A] font-semibold">Market Value: <span className="text-[#F5F5F5] font-black">{formatRobux(preview.currentPrice, settings.currencyFormat)}</span></p>
                   </div>
-                  <button onClick={() => setPreview(null)} className="p-2 text-white/50"><X className="w-5 h-5"/></button>
+                  <button onClick={() => setPreview(null)} className="p-2 text-[#8A8A8A] hover:text-[#F5F5F5] hover:bg-[#1A1A1A] rounded-full transition-all active:scale-90"><X className="w-5 h-5"/></button>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-white/50 mb-2 uppercase">Purchase Price</label>
-                    <input type="number" value={form.boughtPrice} onChange={e => setForm({...form, boughtPrice: e.target.value})} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 font-bold focus:outline-none" />
+                    <label className="block text-xs font-black text-[#8A8A8A] mb-2 uppercase tracking-wider">Purchase Price</label>
+                    <input type="number" value={form.boughtPrice} onChange={e => setForm({...form, boughtPrice: e.target.value})} className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 font-bold focus:outline-none focus:border-[#F5F5F5] transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-white/50 mb-2 uppercase">Quantity</label>
-                    <input type="number" min="1" value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 font-bold focus:outline-none" />
+                    <label className="block text-xs font-black text-[#8A8A8A] mb-2 uppercase tracking-wider">Quantity</label>
+                    <input type="number" min="1" value={form.quantity} onChange={e => setForm({...form, quantity: e.target.value})} className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 font-bold focus:outline-none focus:border-[#F5F5F5] transition-colors" />
                   </div>
                 </div>
 
-                <button onClick={handleAdd} className="w-full bg-indigo-600 text-white font-bold rounded-2xl py-3.5">
+                <button onClick={handleAdd} className="w-full bg-[#F5F5F5] text-[#050505] font-black rounded-xl py-4 hover:bg-white active:scale-[0.98] transition-all shadow-md">
                   Confirm Addition
                 </button>
               </div>
@@ -1562,7 +1496,11 @@
         const handleSearch = async (e) => {
           e.preventDefault();
           const parsedId = RobloxAPI.extractId(idInput);
-          if (!parsedId) return setError("Please provide a valid Asset URL or ID.");
+          
+          if (!parsedId) {
+             setError("Please provide a valid Asset URL or ID.");
+             return;
+          }
           
           setLoading(true); setError(''); setPreview(null);
           try {
@@ -1570,7 +1508,7 @@
             setPreview(data);
             setForm({ targetPrice: String(data.currentPrice || 1000), availableRobux: '0' });
           } catch (err) {
-            setError("Could not find item.");
+            setError("Could not find the requested item.");
           } finally { setLoading(false); }
         };
 
@@ -1585,50 +1523,48 @@
             targetPrice: Number(form.targetPrice) || preview.currentPrice,
             availableRobux: Number(form.availableRobux) || 0
           });
-          const updated = [...wishlist, newWish];
-          setWishlist(updated);
-          persistDataToCloud(items, updated, notifications, settings);
-          showToast("Item added to Wishlist");
+          setWishlist(prev => [...prev, newWish]);
+          showToast("Added item to Wishlist.");
           setIsWishlistAddOpen(false);
         };
 
         return (
-          <Modal isOpen={isWishlistAddOpen} onClose={() => setIsWishlistAddOpen(false)} title="Track Wishlist Item">
+          <Modal isOpen={isWishlistAddOpen} onClose={() => setIsWishlistAddOpen(false)} title="Track New Wishlist Item">
             {!preview ? (
-              <form onSubmit={handleSearch} className="space-y-4">
+              <form onSubmit={handleSearch} className="space-y-5 animate-in fade-in duration-300">
                 <div>
-                  <label className="block text-xs font-bold text-white/50 mb-2 uppercase">Asset URL or ID</label>
-                  <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="e.g. 19027209" className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-4 py-3.5 font-bold focus:outline-none focus:border-indigo-500" />
+                  <label className="block text-xs font-black text-[#8A8A8A] mb-2 uppercase tracking-wider">Asset URL or ID</label>
+                  <input type="text" value={idInput} onChange={e => setIdInput(e.target.value)} placeholder="e.g. 19027209" className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-4 font-bold focus:outline-none focus:border-[#F5F5F5] transition-colors" />
                 </div>
-                {error && <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-400 rounded-xl text-xs font-bold">{error}</div>}
-                <button type="submit" disabled={loading || !idInput.trim()} className="w-full bg-indigo-600 text-white font-bold rounded-2xl py-3.5 flex justify-center items-center gap-2">
-                  {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <><Search className="w-5 h-5" /> Inspect Item</>}
+                {error && <div className="p-3 bg-[#FF453A]/10 text-[#FF453A] rounded-xl text-xs font-bold animate-in slide-in-from-top-2">{error}</div>}
+                <button type="submit" disabled={loading || !idInput.trim()} className="w-full bg-[#F5F5F5] text-[#050505] font-black rounded-xl py-4 hover:bg-white active:scale-[0.98] transition-all disabled:opacity-50 flex justify-center items-center gap-2 shadow-sm">
+                  {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <><Search className="w-5 h-5" /> Find Item</>}
                 </button>
               </form>
             ) : (
-              <div className="space-y-5">
-                <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
-                  <RobloxImage src={preview.imageUrl} className="w-14 h-14 rounded-xl" />
+              <div className="space-y-6 animate-in slide-in-from-right-8 fade-in duration-400 ease-out">
+                <div className="flex items-center gap-4 bg-[#111111] p-4 rounded-2xl border border-[#1A1A1A]">
+                  <RobloxImage src={preview.imageUrl} className="w-14 h-14 rounded-xl bg-[#050505] border border-[#1A1A1A]" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-white truncate">{preview.name}</p>
-                    <p className="text-xs text-white/50 mt-1 font-semibold">Price: <span className="text-white font-bold">{formatRobux(preview.currentPrice, settings.currencyFormat)}</span></p>
+                    <p className="text-sm font-black text-[#F5F5F5] truncate">{preview.name}</p>
+                    <p className="text-xs text-[#8A8A8A] mt-1 font-semibold">Current: <span className="text-[#F5F5F5] font-black">{formatRobux(preview.currentPrice, settings.currencyFormat)}</span></p>
                   </div>
-                  <button onClick={() => setPreview(null)} className="p-2 text-white/50"><X className="w-5 h-5"/></button>
+                  <button onClick={() => setPreview(null)} className="p-2 text-[#8A8A8A] hover:text-[#F5F5F5] hover:bg-[#1A1A1A] rounded-full transition-all active:scale-90"><X className="w-5 h-5"/></button>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-white/50 mb-2 uppercase">Target Price</label>
-                    <input type="number" value={form.targetPrice} onChange={e => setForm({...form, targetPrice: e.target.value})} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 font-bold focus:outline-none" />
+                    <label className="block text-xs font-black text-[#8A8A8A] mb-2 uppercase tracking-wider">Target Price</label>
+                    <input type="number" value={form.targetPrice} onChange={e => setForm({...form, targetPrice: e.target.value})} className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 font-bold focus:outline-none focus:border-[#F5F5F5] transition-colors" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-white/50 mb-2 uppercase">Saved Robux</label>
-                    <input type="number" value={form.availableRobux} onChange={e => setForm({...form, availableRobux: e.target.value})} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-4 py-3 font-bold focus:outline-none" />
+                    <label className="block text-xs font-black text-[#8A8A8A] mb-2 uppercase tracking-wider">Your Saved Robux</label>
+                    <input type="number" value={form.availableRobux} onChange={e => setForm({...form, availableRobux: e.target.value})} className="w-full bg-[#111111] border border-[#1A1A1A] text-[#F5F5F5] rounded-xl px-4 py-3 font-bold focus:outline-none focus:border-[#F5F5F5] transition-colors" />
                   </div>
                 </div>
 
-                <button onClick={handleAdd} className="w-full bg-indigo-600 text-white font-bold rounded-2xl py-3.5">
-                  Save Wishlist Item
+                <button onClick={handleAdd} className="w-full bg-[#F5F5F5] text-[#050505] font-black rounded-xl py-4 hover:bg-white active:scale-[0.98] transition-all shadow-md">
+                  Save Tracking Rules
                 </button>
               </div>
             )}
@@ -1648,74 +1584,115 @@
           : [selectedItem.boughtPrice || selectedItem.currentPrice, selectedItem.currentPrice]; 
 
         const toggleFavorite = () => {
-          const updated = items.map(i => i.id === selectedItem.id ? { ...i, isFavorite: !i.isFavorite } : i);
-          setItems(updated);
+          setItems(prev => prev.map(i => i.id === selectedItem.id ? { ...i, isFavorite: !i.isFavorite } : i));
           setSelectedItem(prev => ({ ...prev, isFavorite: !prev.isFavorite }));
-          persistDataToCloud(updated, wishlist, notifications, settings);
+          showToast(selectedItem.isFavorite ? "Removed from favorites" : "Saved to favorites");
         };
 
         const handleRemove = () => {
-          const updated = items.filter(i => i.id !== selectedItem.id);
-          setItems(updated);
+          setItems(prev => prev.filter(i => i.id !== selectedItem.id));
           setSelectedItem(null);
-          persistDataToCloud(updated, wishlist, notifications, settings);
-          showToast("Asset removed");
+          showToast("Removed from portfolio");
         };
 
         return (
-          <Modal isOpen={!!selectedItem} onClose={() => setSelectedItem(null)} title="Asset Details" maxWidth="max-w-xl">
-            <div className="space-y-6">
-              <div className="flex items-start gap-5">
-                <RobloxImage src={selectedItem.imageUrl} className="w-28 h-28 rounded-2xl border border-white/10 p-2 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
+          <Modal isOpen={!!selectedItem} onClose={() => setSelectedItem(null)} title="Asset Analysis" maxWidth="max-w-xl">
+            <div className="space-y-8 animate-in fade-in duration-300">
+              
+              <div className="flex items-start gap-6">
+                <div className="w-32 h-32 rounded-3xl bg-[#111111] border border-[#1A1A1A] p-2 flex-shrink-0 relative overflow-hidden group shadow-lg">
+                  <RobloxImage src={selectedItem.imageUrl} className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700 ease-out" />
+                </div>
+                <div className="flex-1 min-w-0 py-1">
                   <div className="flex justify-between items-start">
-                    <div>
-                      <h2 className="text-xl font-bold text-white truncate">{selectedItem.name}</h2>
-                      <p className="text-xs text-white/40 font-mono mt-0.5">Asset ID: {selectedItem.assetId}</p>
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        {selectedItem.isLimited ? (
+                          <span className="text-[10px] font-black bg-[#30D158]/10 text-[#30D158] px-2 py-0.5 rounded shadow-sm">LIMITED</span>
+                        ) : (
+                          <span className="text-[10px] font-bold bg-[#1A1A1A] text-[#8A8A8A] px-2 py-0.5 rounded">STANDARD</span>
+                        )}
+                      </div>
+                      <h2 className="text-xl font-bold text-[#F5F5F5] leading-tight truncate">{selectedItem.name}</h2>
                     </div>
-                    <button onClick={toggleFavorite} className="p-2 text-white/60 hover:text-white">
-                      <Star className={`w-6 h-6 ${selectedItem.isFavorite ? 'text-amber-400 fill-amber-400' : ''}`} />
+                    <button onClick={toggleFavorite} className={`p-2.5 -mt-2 -mr-2 rounded-full hover:bg-[#111111] transition-all active:scale-90 ${selectedItem.isFavorite ? 'animate-in zoom-in-95 duration-200' : ''}`}>
+                      <Star className={`w-6 h-6 ${selectedItem.isFavorite ? 'text-[#F5F5F5] fill-[#F5F5F5]' : 'text-[#8A8A8A]'}`} />
                     </button>
                   </div>
+                  <p className="text-[#8A8A8A] text-xs font-mono mt-1 opacity-70">ID: {selectedItem.assetId}</p>
                   
                   <div className="mt-4 flex gap-6">
                     <div>
-                      <p className="text-[10px] text-white/40 uppercase font-bold">Market Price</p>
-                      <p className="text-base font-black text-white">{formatRobux(selectedItem.currentPrice, settings.currencyFormat)}</p>
+                      <p className="text-[10px] text-[#8A8A8A] uppercase font-bold tracking-wider mb-1">Market Value</p>
+                      <p className="text-lg font-black text-[#F5F5F5]">{formatRobux(selectedItem.currentPrice, settings.currencyFormat)}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-white/40 uppercase font-bold">Quantity</p>
-                      <p className="text-base font-black text-white">{selectedItem.quantity}</p>
+                      <p className="text-[10px] text-[#8A8A8A] uppercase font-bold tracking-wider mb-1">Your Stock</p>
+                      <p className="text-lg font-black text-[#F5F5F5]">{selectedItem.quantity}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {selectedItem.isLimited && (
-                <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                  <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest mb-3">Price Trend (RAP)</h3>
-                  <div className="h-28 w-full">
+              {selectedItem.isLimited ? (
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-3xl p-5 transition-colors hover:border-[#2A2A2A] shadow-inner">
+                  <h3 className="text-xs font-bold text-[#8A8A8A] mb-4 uppercase tracking-widest">Price History (RAP)</h3>
+                  <div className="h-32 w-full">
                     <SmoothSparkline data={chartData} isPositive={isProfitable} />
                   </div>
                 </div>
+              ) : (
+                <div className="bg-[#111111] border border-[#1A1A1A] rounded-2xl p-6 text-center">
+                  <p className="text-sm font-semibold text-[#8A8A8A]">Advanced charting and resale data are exclusive for Limited items.</p>
+                </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
-                 <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                   <p className="text-[10px] text-white/40 uppercase font-bold">Bought Price</p>
-                   <p className="text-sm font-bold text-white">{formatRobux(selectedItem.boughtPrice, settings.currencyFormat)}</p>
+              {selectedItem.isLimited && (
+                <div className="bg-[#0A0A0A] border border-[#1A1A1A] rounded-3xl p-5 space-y-4 shadow-inner">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-xs font-bold text-[#8A8A8A] uppercase tracking-widest">Active Resellers</h3>
+                    <span className="text-xs text-[#F5F5F5] font-bold">Lowest: <span className="text-[#30D158]">{formatRobux(selectedItem.lowestResellerPrice || selectedItem.currentPrice, settings.currencyFormat)}</span></span>
+                  </div>
+                  {selectedItem.resellers && selectedItem.resellers.length > 0 ? (
+                    <div className="space-y-2.5 max-h-44 overflow-y-auto custom-scrollbar pr-2">
+                      {selectedItem.resellers.map((res, i) => (
+                        <div key={i} className="flex items-center justify-between p-3.5 bg-[#111111] rounded-xl border border-[#1A1A1A] text-sm hover:border-[#2A2A2A] transition-colors">
+                          <div>
+                            <p className="font-bold text-[#F5F5F5]">{res.sellerName}</p>
+                            <p className="text-[10px] font-medium text-[#8A8A8A] mt-0.5">Quantity: {res.quantity}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-[#F5F5F5]">{formatRobux(res.price, settings.currencyFormat)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs font-semibold text-[#8A8A8A] py-3 text-center">API indicates no active resellers at this moment.</p>
+                  )}
                 </div>
-                <div className="bg-white/5 p-4 rounded-xl border border-white/10">
-                   <p className="text-[10px] text-white/40 uppercase font-bold">Net Profit/Loss</p>
-                   <p className={`text-sm font-black ${isProfitable ? 'text-emerald-400' : 'text-rose-400'}`}>
-                     {profit > 0 ? '+' : ''}{formatRobux(profit, settings.currencyFormat)} ({roi.toFixed(1)}%)
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                 <div className="bg-[#111111] p-5 rounded-2xl border border-[#1A1A1A] flex flex-col justify-center">
+                   <p className="text-[10px] text-[#8A8A8A] uppercase font-bold tracking-wider mb-1.5">Avg Entry Cost</p>
+                   <p className="text-base font-bold text-[#F5F5F5]">{formatRobux(selectedItem.boughtPrice, settings.currencyFormat)}</p>
+                </div>
+                <div className="bg-[#111111] p-5 rounded-2xl border border-[#1A1A1A] flex flex-col justify-center">
+                   <p className="text-[10px] text-[#8A8A8A] uppercase font-bold tracking-wider mb-1.5">Net Profit / Loss</p>
+                   <p className={`text-base font-black flex items-center gap-2 ${isProfitable ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
+                     {profit > 0 ? '+' : ''}{formatRobux(profit, settings.currencyFormat)}
+                     <span className="text-xs opacity-80 font-bold bg-black/20 px-2 py-0.5 rounded">({roi > 0 ? '+' : ''}{roi.toFixed(1)}%)</span>
                    </p>
                 </div>
               </div>
 
-              <button onClick={handleRemove} className="w-full py-3.5 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 rounded-xl text-xs font-bold transition-all border border-rose-500/20">
-                Remove Asset
-              </button>
+              <div className="pt-2">
+                <button onClick={handleRemove} className="w-full py-4 bg-[#FF453A]/10 text-[#FF453A] hover:bg-[#FF453A]/20 active:scale-[0.98] rounded-xl text-sm font-bold transition-all border border-transparent hover:border-[#FF453A]/30">
+                  Remove Asset from Portfolio
+                </button>
+              </div>
+
             </div>
           </Modal>
         );
@@ -1725,150 +1702,159 @@
         if (!selectedWishlistItem) return null;
 
         const handleRemove = () => {
-          const updated = wishlist.filter(w => w.id !== selectedWishlistItem.id);
-          setWishlist(updated);
+          setWishlist(prev => prev.filter(w => w.id !== selectedWishlistItem.id));
           setSelectedWishlistItem(null);
-          persistDataToCloud(items, updated, notifications, settings);
-          showToast("Item removed from wishlist");
+          showToast("Successfully stopped tracking item.");
         };
 
         return (
-          <Modal isOpen={!!selectedWishlistItem} onClose={() => setSelectedWishlistItem(null)} title="Wishlist Details">
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <RobloxImage src={selectedWishlistItem.imageUrl} className="w-20 h-20 rounded-2xl border border-white/10 p-1" />
+          <Modal isOpen={!!selectedWishlistItem} onClose={() => setSelectedWishlistItem(null)} title="Tracking Insights" maxWidth="max-w-lg">
+            <div className="space-y-8 animate-in fade-in duration-300">
+              <div className="flex items-center gap-5">
+                <RobloxImage src={selectedWishlistItem.imageUrl} className="w-24 h-24 rounded-3xl bg-[#111111] border border-[#1A1A1A] p-2 shadow-lg" />
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-lg font-bold text-white truncate">{selectedWishlistItem.name}</h2>
-                  <p className="text-xs text-white/50 mt-1">Current Price: <strong className="text-white">{formatRobux(selectedWishlistItem.currentPrice, settings.currencyFormat)}</strong></p>
+                  <h2 className="text-xl font-bold text-[#F5F5F5] truncate">{selectedWishlistItem.name}</h2>
+                  <p className="text-sm font-semibold text-[#8A8A8A] mt-1.5">Market Value: <strong className="text-[#F5F5F5]">{formatRobux(selectedWishlistItem.currentPrice, settings.currencyFormat)}</strong></p>
+                  {selectedWishlistItem.isAffordable && (
+                    <span className="inline-block mt-3 text-[10px] font-black text-[#30D158] bg-[#30D158]/10 px-2.5 py-1 rounded shadow-sm">AFFORDABLE NOW</span>
+                  )}
                 </div>
               </div>
 
-              <div className="bg-white/5 p-4 rounded-2xl border border-white/10 space-y-3 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-white/50">Target Price</span>
-                  <span className="text-white font-bold">{formatRobux(selectedWishlistItem.targetPrice, settings.currencyFormat)}</span>
+              <div className="bg-[#111111] p-5 rounded-3xl border border-[#1A1A1A] space-y-4 shadow-inner">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-[#8A8A8A] font-semibold">Your Target Price</span>
+                  <span className="text-[#F5F5F5] font-black">{formatRobux(selectedWishlistItem.targetPrice, settings.currencyFormat)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-white/50">Saved Robux</span>
-                  <span className="text-white font-bold">{formatRobux(selectedWishlistItem.availableRobux, settings.currencyFormat)}</span>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-[#8A8A8A] font-semibold">Your Current Robux</span>
+                  <span className="text-[#F5F5F5] font-black">{formatRobux(selectedWishlistItem.availableRobux, settings.currencyFormat)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm pt-4 border-t border-[#1A1A1A]">
+                  <span className="text-[#8A8A8A] font-black uppercase tracking-wider text-xs">Differential</span>
+                  <span className={`font-black text-base ${selectedWishlistItem.availableRobux >= selectedWishlistItem.targetPrice ? 'text-[#30D158]' : 'text-[#FF453A]'}`}>
+                    {formatRobux(Math.abs(selectedWishlistItem.targetPrice - selectedWishlistItem.availableRobux), settings.currencyFormat)} {selectedWishlistItem.availableRobux >= selectedWishlistItem.targetPrice ? 'Surplus' : 'Deficit'}
+                  </span>
                 </div>
               </div>
 
-              <button onClick={handleRemove} className="w-full py-3.5 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 rounded-xl text-xs font-bold">
-                Stop Tracking Item
+              <button onClick={handleRemove} className="w-full py-4 bg-[#FF453A]/10 text-[#FF453A] hover:bg-[#FF453A]/20 active:scale-[0.98] rounded-xl text-sm font-bold transition-all">
+                Stop Tracking
               </button>
             </div>
           </Modal>
         );
       };
 
-      // Desktop & Mobile Navigation Item
+      // Sidebar / Bottom Nav
       const NavItem = ({ id, icon, label, isMobile, badge }) => {
         const isActive = activeTab === id;
         if (isMobile) {
           return (
-            <button onClick={() => setActiveTab(id)} className={`flex flex-col items-center justify-center w-full h-full gap-1 relative ${isActive ? 'text-white' : 'text-white/40'}`}>
-              {isActive && <div className="absolute top-1 w-1.5 h-1.5 bg-indigo-500 rounded-full" />}
-              {badge > 0 && <span className="absolute top-1 right-1/4 w-4 h-4 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">{badge}</span>}
-              {React.cloneElement(icon, { className: `w-5 h-5 transition-transform ${isActive ? 'scale-110' : ''}` })}
-              <span className="text-[10px] font-bold">{label}</span>
+            <button onClick={() => setActiveTab(id)} className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-all duration-300 relative ${isActive ? 'text-[#F5F5F5]' : 'text-[#8A8A8A] hover:text-[#D1D1D1]'}`}>
+              {isActive && <div className="absolute top-1 w-1.5 h-1.5 bg-[#F5F5F5] rounded-full animate-in zoom-in-95" />}
+              {badge > 0 && <span className="absolute top-1 right-1/3 w-4 h-4 bg-[#FF453A] text-white text-[9px] font-bold rounded-full flex items-center justify-center border border-[#0A0A0A]">{badge}</span>}
+              {React.cloneElement(icon, { className: `w-5 h-5 transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}` })}
+              <span className={`text-[10px] font-bold transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-70'}`}>{label}</span>
             </button>
           );
         }
         return (
-          <button onClick={() => setActiveTab(id)} className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all ${isActive ? 'bg-indigo-600 text-white font-bold shadow-lg shadow-indigo-600/30' : 'text-white/50 font-semibold hover:text-white hover:bg-white/5'}`}>
-            <div className="flex items-center gap-3.5">
-              {React.cloneElement(icon, { className: 'w-5 h-5' })}
+          <button onClick={() => setActiveTab(id)} className={`w-full flex items-center justify-between px-5 py-3.5 rounded-2xl transition-all duration-200 group ${isActive ? 'bg-[#111111] text-[#F5F5F5] font-black shadow-sm' : 'text-[#8A8A8A] font-bold hover:text-[#F5F5F5] hover:bg-[#0A0A0A] active:scale-95'}`}>
+            <div className="flex items-center gap-4">
+              {React.cloneElement(icon, { className: `w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 text-[#F5F5F5]' : 'group-hover:scale-110'}` })}
               <span className="text-sm">{label}</span>
             </div>
-            {badge > 0 && <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{badge}</span>}
+            {badge > 0 && <span className="bg-[#FF453A] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{badge}</span>}
           </button>
         );
       };
 
       return (
-        <div className="flex h-[100dvh] w-full bg-[#030305] text-slate-100 font-sans selection:bg-indigo-500/30 overflow-hidden">
+        <div className="flex h-[100dvh] w-full bg-[#050505] text-[#F5F5F5] font-sans selection:bg-[#30D158]/35 selection:text-[#F5F5F5] overflow-hidden">
           
-          {/* Desktop Glass Navigation Sidebar */}
-          <aside className="hidden md:flex flex-col w-72 border-r border-white/10 z-40 relative glass-card">
-            <div className="h-20 flex items-center justify-between px-6">
+          {/* Sidebar - Desktop */}
+          <aside className="hidden md:flex flex-col w-72 bg-[#050505] border-r border-[#1A1A1A] z-40 relative">
+            <div className="h-24 flex items-center justify-between px-8">
               <div>
-                <h1 className="text-xl font-black tracking-[0.2em] text-white">RAPLY</h1>
-                <p className="text-[10px] text-indigo-400 font-bold tracking-widest uppercase">By Pan</p>
+                <h1 className="text-2xl font-black tracking-[0.2em] text-[#F5F5F5]">RAPLY</h1>
+                <p className="text-[10px] text-purple-400 font-bold tracking-widest uppercase">By Pan • Ultimate</p>
               </div>
+              {unreadNotesCount > 0 && (
+                <span className="bg-[#FF453A] text-white text-xs font-bold px-2.5 py-0.5 rounded-full animate-pulse">{unreadNotesCount} alert</span>
+              )}
             </div>
-
-            <nav className="flex-1 space-y-1.5 px-4">
+            <nav className="flex-1 space-y-1.5 px-5">
               <NavItem id="home" icon={<LayoutDashboard />} label="Dashboard" />
               <NavItem id="portfolio" icon={<Wallet />} label="Portfolio" />
               <NavItem id="wishlist" icon={<Heart />} label="Wishlist" badge={wishlist.filter(w => w.isAffordable).length} />
-              <NavItem id="favorites" icon={<Star />} label="Pinned" />
-              <NavItem id="alerts" icon={<Bell />} label="Price Alerts" badge={notifications.length} />
+              <NavItem id="favorites" icon={<Star />} label="Favorites" />
               <NavItem id="settings" icon={<SettingsIcon />} label="Settings" />
             </nav>
             
-            <div className="p-4 border-t border-white/10">
-              <button onClick={() => setIsSearchOpen(true)} className="w-full flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl text-white/50 text-sm font-bold transition-all">
-                <Search className="w-5 h-5" /> 
-                <span>Search Portfolio</span>
+            {/* User Profile Snippet */}
+            <div className="px-5 pb-3 pt-6">
+              <button onClick={() => setActiveTab('settings')} className="w-full p-3 flex items-center gap-3 hover:bg-[#0A0A0A] rounded-2xl transition-all border border-transparent hover:border-[#1A1A1A] active:scale-[0.98] text-left group">
+                <RobloxImage src={profileDisplayImage} type="user" className="w-11 h-11 rounded-full border border-[#1A1A1A] bg-[#111111] group-hover:scale-105 transition-transform" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-[#F5F5F5] truncate">{settings.profile.displayName || 'Guest User'}</p>
+                  <p className="text-xs font-semibold text-[#8A8A8A] truncate mt-0.5">{settings.profile.username ? `@${settings.profile.username}` : 'Link account'}</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-[#8A8A8A] opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
+              </button>
+            </div>
+
+            <div className="p-5 border-t border-[#1A1A1A]/50">
+              <button onClick={() => setIsSearchOpen(true)} className="w-full flex items-center gap-3 px-4 py-3 bg-[#0A0A0A] hover:bg-[#111111] active:scale-[0.98] border border-[#1A1A1A] rounded-2xl text-[#8A8A8A] text-sm font-bold transition-all group">
+                <Search className="w-5 h-5 transition-transform group-hover:scale-110" /> 
+                <span>Search Assets</span>
+                <kbd className="ml-auto hidden lg:inline-block text-[10px] bg-[#1A1A1A] px-2 py-1 rounded-md text-[#8A8A8A] group-hover:text-[#F5F5F5] border border-[#2A2A2A] transition-colors">Cmd K</kbd>
               </button>
             </div>
           </aside>
 
-          {/* Main Content Pane */}
+          {/* Main Content */}
           <main className="flex-1 relative flex flex-col h-full overflow-hidden">
-            {/* Top Bar for PWA Mobile Banner */}
-            {showPwaBanner && (
-              <div className="bg-indigo-600/90 backdrop-blur-md px-4 py-2.5 text-xs text-white font-medium flex items-center justify-between z-30">
-                <div className="flex items-center gap-2 truncate">
-                  <PhoneIcon className="w-4 h-4 flex-shrink-0" />
-                  <span className="truncate">Add Raply to home screen for full app view</span>
-                </div>
-                <button onClick={() => setIsPwaTutorialOpen(true)} className="underline font-bold ml-2 flex-shrink-0">
-                  How?
+            {/* Mobile Header */}
+            <div className="md:hidden flex items-center justify-between px-5 h-16 border-b border-[#1A1A1A] bg-[#050505]/80 backdrop-blur-md z-30">
+              <div>
+                <h1 className="text-lg font-black tracking-[0.2em] text-[#F5F5F5]">RAPLY</h1>
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={() => setIsSearchOpen(true)} className="p-2 text-[#8A8A8A] hover:text-[#F5F5F5] transition-colors bg-[#111111] rounded-full">
+                  <Search className="w-4 h-4" />
                 </button>
               </div>
-            )}
-
-            {/* Mobile Top Header */}
-            <div className="md:hidden flex items-center justify-between px-5 h-16 border-b border-white/10 glass-card z-30">
-              <div>
-                <h1 className="text-lg font-black tracking-[0.2em] text-white">RAPLY</h1>
-              </div>
-              <button onClick={() => setIsSearchOpen(true)} className="p-2 text-white/60 bg-white/5 rounded-full">
-                <Search className="w-4 h-4" />
-              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8 lg:p-10 pb-28 md:pb-10">
-              <div className="max-w-5xl mx-auto">
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-5 md:p-10 lg:p-14 pb-28 md:pb-14">
+              <div className="max-w-5xl mx-auto h-full">
                 {activeTab === 'home' && renderDashboard()}
                 {activeTab === 'portfolio' && renderPortfolio()}
                 {activeTab === 'wishlist' && renderWishlist()}
                 {activeTab === 'favorites' && renderFavorites()}
-                {activeTab === 'alerts' && renderNotifications()}
                 {activeTab === 'settings' && renderSettings()}
               </div>
             </div>
           </main>
 
-          {/* Mobile Glass Bottom Bar */}
-          <nav className="md:hidden fixed bottom-0 inset-x-0 glass-card border-t border-white/10 z-40 pb-safe">
+          {/* Bottom Nav - Mobile */}
+          <nav className="md:hidden fixed bottom-0 inset-x-0 bg-[#050505]/95 backdrop-blur-xl border-t border-[#1A1A1A] z-40 pb-safe shadow-[0_-10px_40px_rgba(0,0,0,0.8)]">
             <div className="flex justify-around items-center h-16 px-2">
               <NavItem id="home" icon={<LayoutDashboard />} label="Home" isMobile />
               <NavItem id="portfolio" icon={<Wallet />} label="Assets" isMobile />
               <NavItem id="wishlist" icon={<Heart />} label="Wishlist" isMobile badge={wishlist.filter(w => w.isAffordable).length} />
-              <NavItem id="alerts" icon={<Bell />} label="Alerts" isMobile badge={notifications.length} />
+              <NavItem id="favorites" icon={<Star />} label="Favorites" isMobile />
               <NavItem id="settings" icon={<SettingsIcon />} label="Settings" isMobile />
             </div>
           </nav>
 
-          {/* Toast Notification Container */}
-          <div className="fixed bottom-20 md:bottom-8 right-0 left-0 md:left-auto md:right-8 flex flex-col items-center md:items-end gap-2.5 z-[60] pointer-events-none px-4 md:px-0">
+          {/* Toasts */}
+          <div className="fixed bottom-24 md:bottom-8 right-0 left-0 md:left-auto md:right-8 flex flex-col items-center md:items-end gap-3 z-[60] pointer-events-none px-5 md:px-0">
             {toasts.map(toast => (
-              <div key={toast.id} className="pointer-events-auto flex items-center gap-3 bg-slate-900/90 backdrop-blur-xl border border-white/15 text-white px-4 py-3 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4">
-                {toast.type === 'error' ? <AlertCircle className="w-4 h-4 text-rose-400" /> : <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                <span className="text-xs font-bold">{toast.message}</span>
+              <div key={toast.id} className="pointer-events-auto flex items-center gap-3 bg-[#111111] border border-[#2A2A2A] text-[#F5F5F5] px-5 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-4 fade-in duration-300 ease-out">
+                {toast.type === 'error' ? <AlertCircle className="w-5 h-5 text-[#FF453A]" /> : <CheckCircle2 className="w-5 h-5 text-[#30D158]" />}
+                <span className="text-sm font-bold">{toast.message}</span>
               </div>
             ))}
           </div>
@@ -1879,8 +1865,6 @@
           <ItemDetailsModal />
           <WishlistDetailsModal />
           <SearchModal />
-          <PwaTutorialModal />
-
         </div>
       );
     }
@@ -1890,5 +1874,3 @@
   </script>
 </body>
 </html>
-
-```
